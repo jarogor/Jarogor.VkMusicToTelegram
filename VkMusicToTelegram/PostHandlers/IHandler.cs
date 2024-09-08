@@ -7,4 +7,4 @@ public interface IHandler
     public Text GetPreparedTitle(Dto.Post post);
 }
 
-public record struct Text(string Name, string Tags, bool IsExists = false);
+public record struct Text(string Name, bool IsExists = false);

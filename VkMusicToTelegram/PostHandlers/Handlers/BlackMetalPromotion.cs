@@ -22,6 +22,6 @@ public sealed class BlackMetalPromotion : IHandler
 
         return name is null
             ? new Text()
-            : new Text(name, string.Empty, true);
+            : new Text(name, true);
     }
 }

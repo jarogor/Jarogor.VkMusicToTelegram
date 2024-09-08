@@ -35,6 +35,7 @@ public class VkMusicToTelegramWorker(ILogger<VkMusicToTelegramWorker> logger, IO
     {
         while (!stoppingToken.IsCancellationRequested)
         {
+            logger.LogInformation("run");
             Run();
             await Task.Delay(TimeSpan.FromHours(_jobIntervalHours), stoppingToken);
         }
@@ -56,7 +57,6 @@ public class VkMusicToTelegramWorker(ILogger<VkMusicToTelegramWorker> logger, IO
             };
 
             var posts = _vkApiClient.Call<CustomWall>("wall.get", vkParameters, false, new CustomAttachmentJsonConverter());
-            logger.LogInformation("posts: {0}", posts.TotalCount);
 
             foreach (var post in posts.WallPosts)
             {

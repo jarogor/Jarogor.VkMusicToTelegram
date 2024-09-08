@@ -7,31 +7,9 @@ namespace VkMusicToTelegram.PostHandlers.Handlers;
 /// - название группы может выглядеть так `[club787866|MINUALA]`, поэтому его нужно проверять регуляркой и вырезать
 /// - последняя строка это теги
 /// </summary>
-public sealed class EBlackMetal : IHandler
+public sealed class EBlackMetal : Handler1Base
 {
-    public string Domain => "e_black_metal";
-    public string Name => @"E:\music\black metal";
-
-    public Text GetPreparedTitle(Post post)
-    {
-        var parts = post.Text
-            .Split("\n")
-            .Where(it => !string.IsNullOrWhiteSpace(it))
-            .ToList();
-
-        var tags = parts.Count > 1
-            ? parts.LastOrDefault() ?? string.Empty
-            : string.Empty;
-
-        var name = parts.FirstOrDefault();
-        if (name is null)
-        {
-            return new Text();
-        }
-
-        (bool success, string artistName) = this.ParseArtistName(name);
-        return success
-            ? new Text(artistName, tags, true)
-            : new Text();
-    }
+    public override string Domain => "e_black_metal";
+    public override string Name => @"E:\music\black metal";
+    public override Text GetPreparedTitle(Post post) => base.PrepareTitle(post);
 }

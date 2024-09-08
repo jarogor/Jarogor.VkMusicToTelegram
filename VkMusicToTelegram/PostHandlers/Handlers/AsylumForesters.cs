@@ -14,10 +14,6 @@ public sealed class AsylumForesters : IHandler
 
     public Text GetPreparedTitle(Post post)
     {
-        var tags = post.Text
-            .Split("\n")
-            .First(it => !string.IsNullOrWhiteSpace(it));
-
         var playlistsNames = post
             .Attachments
             .Where(it => it.Type == typeof(Link))
@@ -29,6 +25,6 @@ public sealed class AsylumForesters : IHandler
 
         return playlistsNames.Count <= 0
             ? new Text()
-            : new Text(string.Join(",", playlistsNames), tags, true);
+            : new Text(string.Join(",", playlistsNames), true);
     }
 }
