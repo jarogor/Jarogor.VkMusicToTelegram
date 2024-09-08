@@ -23,9 +23,14 @@ public sealed class RuBlackMetal : IHandler
             : string.Empty;
 
         var name = parts.FirstOrDefault();
+        if (name is null)
+        {
+            return new Text();
+        }
 
-        return name is null
-            ? new Text()
-            : new Text(this.ParseArtistName(name), tags, true);
+        (bool success, string artistName) = this.ParseArtistName(name);
+        return success
+            ? new Text(artistName, tags, true)
+            : new Text();
     }
 }

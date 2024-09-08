@@ -12,22 +12,13 @@ using Link = VkMusicToTelegram.Dto.Link;
 
 namespace VkMusicToTelegram;
 
-public class VkMusicToTelegramWorker(IOptions<Options> options) : BackgroundService
+public class VkMusicToTelegramWorker(ILogger<VkMusicToTelegramWorker> logger, IOptions<Options> options) : BackgroundService
 {
-    // TODO
-    // - нужен Qartz наверное, то есть регулярный гибкий запуск в какое-то время,
-    //      либо список времени когда запускать и самому сделать воркер
-    // - нужно хранлище, быть может лучше в файле, чтобы запрашивать последние 10 записей,
-    //      например, и проверять, есть ли они уже или ещё нет,
-    //      быть может завести sqlite базу (скорее всего) для этого, потому что нужно как-то записывать показатели
-    //      и рассчитывать их затем, чтобы публиковать только топ 5, например
-    //      и при этом пропускать уже полученные 
     private readonly List<(string domain, string name, IHandler handler)> _groups =
     [
         ("blackwall", "Blackwall", new BlackWall()),
         ("asylumforesters_vk", "Убежище Лесников", new AsylumForesters()),
         ("black_metal_promotion", "Black Metal Promotion", new BlackMetalPromotion()),
-        // ("bestblackmetal", "BEST BLACK METAL"),
         ("e_black_metal", @"E:\music\black metal", new EBlackMetal()),
         ("ru_black_metal", "Русский блэк-метал", new RuBlackMetal())
     ];
@@ -38,6 +29,7 @@ public class VkMusicToTelegramWorker(IOptions<Options> options) : BackgroundServ
     private readonly TelegramBotClient _tgApiClient = new(options.Value.TgBotId);
     private readonly string _tgChannelId = options.Value.TgChannelId;
     private readonly double _jobIntervalHours = options.Value.JobIntervalHours;
+    private readonly string _historyListFilePath = Path.Join(AppDomain.CurrentDomain.BaseDirectory, "history-list.txt");
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
@@ -51,7 +43,9 @@ public class VkMusicToTelegramWorker(IOptions<Options> options) : BackgroundServ
     private void Run()
     {
         _vkApiClient.AuthorizeAsync(_vkApiAuthParams).GetAwaiter().GetResult();
-        var data = new Dictionary<string, List<string>>();
+        var newContent = new Dictionary<string, List<string>>();
+        var history = File.Exists(_historyListFilePath) ? File.ReadAllLines(_historyListFilePath).ToList() : [];
+        var newHistory = new List<string>();
 
         foreach (var group in _groups)
         {
@@ -62,6 +56,7 @@ public class VkMusicToTelegramWorker(IOptions<Options> options) : BackgroundServ
             };
 
             var posts = _vkApiClient.Call<CustomWall>("wall.get", vkParameters, false, new CustomAttachmentJsonConverter());
+            logger.LogInformation("posts: {0}", posts.TotalCount);
 
             foreach (var post in posts.WallPosts)
             {
@@ -88,29 +83,48 @@ public class VkMusicToTelegramWorker(IOptions<Options> options) : BackgroundServ
                 }
 
                 // Группировка по названиям пабликов
-                if (!data.ContainsKey(group.name))
+                if (!newContent.ContainsKey(group.name))
                 {
-                    data[group.name] = [];
+                    newContent[group.name] = [];
+                }
+
+                // Если уже публиковался ранее
+                if (history.Contains(item.Name))
+                {
+                    continue;
                 }
 
                 // TODO оформить в отдельный форматер, а не раскидывать по частям
-                data[group.name].Add($"[{item.Name}](https://vk.com/wall{post.OwnerId}_{post.Id})");
+                newContent[group.name].Add($"[{item.Name}](https://vk.com/wall{post.OwnerId}_{post.Id})");
+                newHistory.Add(item.Name);
             }
+        }
+
+        if (newHistory.Count <= 0)
+        {
+            return;
         }
 
         // Формирование сообщения
         var message = new StringBuilder();
-        foreach (var pair in data)
+        var items = newContent.Where(pair => pair.Value.Count > 0);
+        foreach (var pair in items)
         {
             message.AppendLine($"__{pair.Key}__");
             message.AppendLine("- " + string.Join("\n- ", pair.Value));
             message.AppendLine();
         }
 
+        logger.LogInformation("new items count: {0}", newHistory.Count);
+
         // Отправка в Телеграм
         _tgApiClient
             .SendTextMessageAsync(_tgChannelId, message.ToString(), parseMode: ParseMode.Markdown, disableWebPagePreview: true)
             .GetAwaiter()
             .GetResult();
+
+        // Добавление новых записей в историю
+        history.AddRange(newHistory);
+        File.WriteAllLines(_historyListFilePath, history);
     }
 }

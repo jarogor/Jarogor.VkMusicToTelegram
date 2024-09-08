@@ -23,13 +23,15 @@ public sealed class BlackWall : IHandler
             return new Text();
         }
 
-        var artistName = this.ParseArtistName(name);
-
         var tags = parts.Count > 1
             ? parts.LastOrDefault() ?? string.Empty
             : string.Empty;
 
-        return new Text(artistName, HandleTags(tags), true);
+        (bool success, string artistName) = this.ParseArtistName(name);
+
+        return success
+            ? new Text(artistName, HandleTags(tags), true)
+            : new Text();
     }
 
     private static string HandleTags(string? line)
