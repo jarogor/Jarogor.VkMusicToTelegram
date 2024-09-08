@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk.Worker">
 
     <PropertyGroup>
         <OutputType>Exe</OutputType>
@@ -15,8 +15,9 @@
     </ItemGroup>
 
     <ItemGroup>
-      <PackageReference Include="Telegram.Bot" Version="19.0.0" />
-      <PackageReference Include="VkNet" Version="1.78.0" />
+        <PackageReference Include="Microsoft.Extensions.Hosting" Version="8.0.0" />
+        <PackageReference Include="Telegram.Bot" Version="19.0.0"/>
+        <PackageReference Include="VkNet" Version="1.78.0"/>
     </ItemGroup>
 
 </Project>
