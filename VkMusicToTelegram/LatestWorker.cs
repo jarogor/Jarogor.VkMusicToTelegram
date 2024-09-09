@@ -90,7 +90,7 @@ public class LatestWorker(ILogger<LatestWorker> logger, IOptions<Options> option
         var message = new StringBuilder();
         var items = newContent.Where(pair => pair.Value.Count > 0);
         foreach (var pair in items) {
-            message.AppendLine($"_{pair.Key}_");
+            message.AppendLine(pair.Key);
             foreach (var item in pair.Value) {
                 message.AppendLine("- " + $"[{item.Name}]({item.Link})");
             }
