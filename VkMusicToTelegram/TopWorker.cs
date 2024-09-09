@@ -21,7 +21,6 @@ public class TopWorker(ILogger<TopWorker> logger, IOptions<Options> options) : B
     private readonly string _tgChannelId = options.Value.TgChannelId;
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken) {
-        Console.WriteLine("START");
         while (!stoppingToken.IsCancellationRequested) {
             logger.LogInformation("run top");
             Run();

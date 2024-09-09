@@ -88,9 +88,6 @@ public class LatestWorker(ILogger<LatestWorker> logger, IOptions<Options> option
 
         // Формирование сообщения
         var message = new StringBuilder();
-        message.AppendLine("**НОВОЕ**");
-        message.AppendLine();
-
         var items = newContent.Where(pair => pair.Value.Count > 0);
         foreach (var pair in items) {
             message.AppendLine($"_{pair.Key}_");
