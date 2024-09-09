@@ -1,7 +1,7 @@
 ﻿using System.Text.RegularExpressions;
 using VkMusicToTelegram.Dto;
 
-namespace VkMusicToTelegram.PostHandlers.Handlers;
+namespace VkMusicToTelegram.PostHandlers;
 
 public abstract class Handler1Base : IHandler
 {
