@@ -4,26 +4,43 @@ using VkMusicToTelegram.Jobs;
 
 var builder = Host.CreateDefaultBuilder(args);
 
+var vkApiAccessToken = Environment.GetEnvironmentVariable("VK_API_ACCESS_TOKEN");
+var tgBotId = Environment.GetEnvironmentVariable("TG_BOT_ID");
+var tgChannelId = Environment.GetEnvironmentVariable("TG_CHANNEL_ID");
+var vkCountPosts = Environment.GetEnvironmentVariable("VK_COUNT_POSTS") ?? "10";
+var tgTopPublicationCount = Environment.GetEnvironmentVariable("TOP_COUNT") ?? "20";
+var jobLatestCron = Environment.GetEnvironmentVariable("JOB_LATEST_CRON") ?? "0 0 18 * * ?";
+var jobTopCron = Environment.GetEnvironmentVariable("JOB_TOP_CRON") ?? "0 0 */4 * * ?";
+
+await Console.Out.WriteLineAsync(
+    $"""
+     VK_API_ACCESS_TOKEN is empty: {string.IsNullOrWhiteSpace(vkApiAccessToken)}
+     TG_BOT_ID:       [{tgBotId}]
+     TG_CHANNEL_ID:   [{tgChannelId}]
+     VK_COUNT_POSTS:  [{vkCountPosts}]
+     TOP_COUNT:       [{tgTopPublicationCount}]
+     JOB_LATEST_CRON: [{jobLatestCron}]
+     JOB_TOP_CRON:    [{jobTopCron}]
+     """
+);
+
 builder
     .ConfigureServices((context, services) => {
         services.AddOptions<Options>().Configure(o => {
-            var vkApiAccessToken = Environment.GetEnvironmentVariable("VK_API_ACCESS_TOKEN");
             if (vkApiAccessToken is null) {
                 throw new Exception("[VK_API_ACCESS_TOKEN] environment variable not found.");
             }
 
-            var tgBotId = Environment.GetEnvironmentVariable("TG_BOT_ID");
             if (tgBotId is null) {
                 throw new Exception("[TG_BOT_ID] environment variable not found.");
             }
 
-            var tgChannelId = Environment.GetEnvironmentVariable("TG_CHANNEL_ID");
             if (tgChannelId is null) {
                 throw new Exception("[TG_CHANNEL_ID] environment variable not found.");
             }
 
-            o.VkCountPosts = int.Parse(Environment.GetEnvironmentVariable("VK_COUNT_POSTS") ?? "10");
-            o.TopCount = int.Parse(Environment.GetEnvironmentVariable("TOP_COUNT") ?? "20");
+            o.VkCountPosts = int.Parse(vkCountPosts);
+            o.TopCount = int.Parse(tgTopPublicationCount);
             o.TgBotId = tgBotId;
             o.TgChannelId = tgChannelId;
             o.VkApiAccessToken = vkApiAccessToken;
@@ -51,13 +68,8 @@ builder
                 //   | | | | | | |
                 //   * * * * * ?
 
-                q.ScheduleJob<LatestJob>(trigger => {
-                    trigger.WithCronSchedule(Environment.GetEnvironmentVariable("JOB_LATEST_CRON") ?? "0 0 18 * * ?");
-                });
-
-                q.ScheduleJob<TopJob>(trigger => {
-                    trigger.WithCronSchedule(Environment.GetEnvironmentVariable("JOB_TOP_CRON") ?? "0 0 */4 * * ?");
-                });
+                q.ScheduleJob<LatestJob>(trigger => trigger.WithCronSchedule(jobLatestCron));
+                q.ScheduleJob<TopJob>(trigger => trigger.WithCronSchedule(jobTopCron));
             });
 
         // Quartz.Extensions.Hosting hosting
