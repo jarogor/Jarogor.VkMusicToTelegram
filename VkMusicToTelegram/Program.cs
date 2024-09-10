@@ -2,47 +2,58 @@
 using VkMusicToTelegram;
 using VkMusicToTelegram.Jobs;
 
-var builder = Host.CreateDefaultBuilder(args);
+const string vkToken = "VK_TOKEN";
+const string botId = "TG_BOT_ID";
+const string channelId = "TG_CHANNEL_ID";
+const string cronLast = "JOB_CRON_LAST";
+const string cronTopWeek = "JOB_CRON_TOP_WEEK";
+const string cronTopMonth = "JOB_CRON_TOP_MONTH";
+const string lastCount = "VK_LAST_COUNT";
+const string topCount = "TG_TOP_COUNT";
 
-var vkApiAccessToken = Environment.GetEnvironmentVariable("VK_TOKEN");
-var tgBotId = Environment.GetEnvironmentVariable("TG_BOT_ID");
-var tgChannelId = Environment.GetEnvironmentVariable("TG_CHANNEL_ID");
+var vkApiAccessToken = Environment.GetEnvironmentVariable(vkToken);
+var tgBotId = Environment.GetEnvironmentVariable(botId);
+var tgChannelId = Environment.GetEnvironmentVariable(channelId);
 
-var jobCronLast = Environment.GetEnvironmentVariable("JOB_CRON_LAST") ?? "0 0 */4 * * ?";
-var jobCronTopWeek = Environment.GetEnvironmentVariable("JOB_CRON_TOP_WEEK") ?? "0 0 18 ? * 6";
-var jobCronTopMonth = Environment.GetEnvironmentVariable("JOB_CRON_TOP_MONTH") ?? "0 0 20 1 * ?";
+var jobCronLast = Environment.GetEnvironmentVariable(cronLast) ?? "0 0 */4 * * ?";
+var jobCronTopWeek = Environment.GetEnvironmentVariable(cronTopWeek) ?? "0 0 18 ? * 6";
+var jobCronTopMonth = Environment.GetEnvironmentVariable(cronTopMonth) ?? "0 0 20 1 * ?";
 
-var vkLastCount = Environment.GetEnvironmentVariable("VK_LAST_COUNT") ?? "20";
-var tgTopCount = Environment.GetEnvironmentVariable("TG_TOP_COUNT") ?? "5";
+var vkLastCount = Environment.GetEnvironmentVariable(lastCount) ?? "20";
+var tgTopCount = Environment.GetEnvironmentVariable(topCount) ?? "5";
 
 await Console.Out.WriteLineAsync(
     $"""
-     VK_TOKEN is set:    {!string.IsNullOrWhiteSpace(vkApiAccessToken)}
-     TG_BOT_ID:          {tgBotId}
-     TG_CHANNEL_ID:      {tgChannelId}
+     ----------------------------------------------
+     {vkToken} is set: {!string.IsNullOrWhiteSpace(vkApiAccessToken)}
+     {botId}:          {tgBotId}
+     {channelId}:      {tgChannelId}
 
-     JOB_CRON_LAST:      "{jobCronLast}"
-     JOB_CRON_TOP_WEEK:  "{jobCronTopWeek}"
-     JOB_CRON_TOP_MONTH: "{jobCronTopMonth}"
+     {cronLast}:     "{jobCronLast}"
+     {cronTopWeek}:  "{jobCronTopWeek}"
+     {cronTopMonth}: "{jobCronTopMonth}"
 
-     VK_LAST_COUNT:      {vkLastCount}
-     TG_TOP_COUNT:       {tgTopCount}
+     {lastCount}: {vkLastCount}
+     {topCount}:  {tgTopCount}
+     ----------------------------------------------
      """
 );
 
 if (vkApiAccessToken is null) {
-    throw new Exception("[VK_TOKEN] environment variable not found.");
+    throw new Exception($"[{vkToken}] environment variable not found.");
 }
 
 if (tgBotId is null) {
-    throw new Exception("[TG_BOT_ID] environment variable not found.");
+    throw new Exception($"[{botId}] environment variable not found.");
 }
 
 if (tgChannelId is null) {
-    throw new Exception("[TG_CHANNEL_ID] environment variable not found.");
+    throw new Exception($"[{channelId}] environment variable not found.");
 }
 
-builder
+
+var host = Host
+    .CreateDefaultBuilder(args)
     .ConfigureServices((context, services) => {
         services.AddOptions<Options>().Configure(o => {
             o.VkApiAccessToken = vkApiAccessToken;
@@ -81,7 +92,7 @@ builder
 
         // Quartz.Extensions.Hosting hosting
         services.AddQuartzHostedService(options => options.WaitForJobsToComplete = true);
-    });
+    })
+    .Build();
 
-var host = builder.Build();
 await host.RunAsync();
