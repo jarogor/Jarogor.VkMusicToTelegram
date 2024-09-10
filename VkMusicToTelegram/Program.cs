@@ -4,28 +4,32 @@ using VkMusicToTelegram.Jobs;
 
 var builder = Host.CreateDefaultBuilder(args);
 
-var vkApiAccessToken = Environment.GetEnvironmentVariable("VK_API_ACCESS_TOKEN");
+var vkApiAccessToken = Environment.GetEnvironmentVariable("VK_TOKEN");
 var tgBotId = Environment.GetEnvironmentVariable("TG_BOT_ID");
 var tgChannelId = Environment.GetEnvironmentVariable("TG_CHANNEL_ID");
-var vkCountPosts = Environment.GetEnvironmentVariable("VK_COUNT_POSTS") ?? "10";
-var tgTopPublicationCount = Environment.GetEnvironmentVariable("TOP_COUNT") ?? "20";
-var jobLatestCron = Environment.GetEnvironmentVariable("JOB_LATEST_CRON") ?? "0 0 18 * * ?";
-var jobTopCron = Environment.GetEnvironmentVariable("JOB_TOP_CRON") ?? "0 0 */4 * * ?";
+
+var jobCronLast = Environment.GetEnvironmentVariable("JOB_CRON_LAST") ?? "0 0 */4 * * ?";
+var jobCronTop = Environment.GetEnvironmentVariable("JOB_CRON_TOP") ?? "0 0 18 * * ?";
+
+var vkLastCount = Environment.GetEnvironmentVariable("VK_LAST_COUNT") ?? "20";
+var vkTopCount = Environment.GetEnvironmentVariable("VK_TOP_COUNT") ?? "30";
+var tgTopCount = Environment.GetEnvironmentVariable("TG_TOP_COUNT") ?? "3";
 
 await Console.Out.WriteLineAsync(
     $"""
-     VK_API_ACCESS_TOKEN is empty: {string.IsNullOrWhiteSpace(vkApiAccessToken)}
-     TG_BOT_ID:       [{tgBotId}]
-     TG_CHANNEL_ID:   [{tgChannelId}]
-     VK_COUNT_POSTS:  [{vkCountPosts}]
-     TOP_COUNT:       [{tgTopPublicationCount}]
-     JOB_LATEST_CRON: [{jobLatestCron}]
-     JOB_TOP_CRON:    [{jobTopCron}]
+     VK_TOKEN is set: {!string.IsNullOrWhiteSpace(vkApiAccessToken)}
+     TG_BOT_ID:       {tgBotId}
+     TG_CHANNEL_ID:   {tgChannelId}
+     JOB_CRON_LAST:   "{jobCronLast}"
+     JOB_CRON_TOP:    "{jobCronTop}"
+     VK_LAST_COUNT:   {vkLastCount}
+     VK_TOP_COUNT:    {vkTopCount}
+     TG_TOP_COUNT:    {tgTopCount}
      """
 );
 
 if (vkApiAccessToken is null) {
-    throw new Exception("[VK_API_ACCESS_TOKEN] environment variable not found.");
+    throw new Exception("[VK_TOKEN] environment variable not found.");
 }
 
 if (tgBotId is null) {
@@ -39,11 +43,12 @@ if (tgChannelId is null) {
 builder
     .ConfigureServices((context, services) => {
         services.AddOptions<Options>().Configure(o => {
-            o.VkCountPosts = int.Parse(vkCountPosts);
-            o.TopCount = int.Parse(tgTopPublicationCount);
+            o.VkApiAccessToken = vkApiAccessToken;
             o.TgBotId = tgBotId;
             o.TgChannelId = tgChannelId;
-            o.VkApiAccessToken = vkApiAccessToken;
+            o.VkLastCount = int.Parse(vkLastCount);
+            o.VkTopCount = int.Parse(vkTopCount);
+            o.TgTopCount = int.Parse(tgTopCount);
         });
 
         services
@@ -68,8 +73,8 @@ builder
                 //   | | | | | | |
                 //   * * * * * ?
 
-                q.ScheduleJob<LatestJob>(trigger => trigger.WithCronSchedule(jobLatestCron));
-                q.ScheduleJob<TopJob>(trigger => trigger.WithCronSchedule(jobTopCron));
+                q.ScheduleJob<LastJob>(trigger => trigger.WithCronSchedule(jobCronLast), jobConfigurator => jobConfigurator.DisallowConcurrentExecution());
+                q.ScheduleJob<TopJob>(trigger => trigger.WithCronSchedule(jobCronTop), jobConfigurator => jobConfigurator.DisallowConcurrentExecution());
             });
 
         // Quartz.Extensions.Hosting hosting

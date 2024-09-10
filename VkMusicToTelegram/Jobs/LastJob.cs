@@ -11,12 +11,13 @@ using Link = VkMusicToTelegram.Dto.Link;
 
 namespace VkMusicToTelegram.Jobs;
 
-public sealed class LatestJob(ILogger<LatestJob> logger, IOptions<Options> options) : IJob {
+public sealed class LastJob(ILogger<LastJob> logger, IOptions<Options> options) : IJob {
     private readonly VkApi _vkApiClient = new();
     private readonly ApiAuthParams _vkApiAuthParams = new() { AccessToken = options.Value.VkApiAccessToken };
-    private readonly int _vkCountPosts = options.Value.VkCountPosts;
     private readonly TelegramBotClient _tgApiClient = new(options.Value.TgBotId);
     private readonly string _tgChannelId = options.Value.TgChannelId;
+
+    private readonly int _vkLastCount = options.Value.VkLastCount;
     private readonly string _historyListFilePath = Path.Join(AppDomain.CurrentDomain.BaseDirectory, "history-list.txt");
 
     public Task Execute(IJobExecutionContext context)
@@ -24,14 +25,17 @@ public sealed class LatestJob(ILogger<LatestJob> logger, IOptions<Options> optio
 
     private async Task Run(CancellationToken stoppingToken) {
         await _vkApiClient.AuthorizeAsync(_vkApiAuthParams, stoppingToken);
+
         var newContent = new Dictionary<string, List<Item>>();
-        var history = File.Exists(_historyListFilePath) ? File.ReadAllLines(_historyListFilePath).ToList() : [];
         var newHistory = new List<string>();
+        var history = File.Exists(_historyListFilePath) 
+            ? (await File.ReadAllLinesAsync(_historyListFilePath, stoppingToken)).ToList()
+            : [];
 
         foreach (var group in Constants.VkGroups) {
             var vkParameters = new VkParameters {
                 { "domain", group.domain },
-                { "count", _vkCountPosts },
+                { "count", _vkLastCount },
             };
 
             var posts = _vkApiClient.Call<CustomWall>("wall.get", vkParameters, false, Constants.CustomAttachmentJsonConverter);

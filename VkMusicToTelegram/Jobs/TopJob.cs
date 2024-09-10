@@ -12,25 +12,25 @@ using Link = VkMusicToTelegram.Dto.Link;
 namespace VkMusicToTelegram.Jobs;
 
 public class TopJob(IOptions<Options> options) : IJob {
-    private const int VkCountPosts = 50;
-
-    private readonly int _topCount = options.Value.TopCount;
     private readonly VkApi _vkApiClient = new();
     private readonly ApiAuthParams _vkApiAuthParams = new() { AccessToken = options.Value.VkApiAccessToken };
     private readonly TelegramBotClient _tgApiClient = new(options.Value.TgBotId);
     private readonly string _tgChannelId = options.Value.TgChannelId;
+
+    private readonly int _vkTopCount = options.Value.VkTopCount;
+    private readonly int _tgTopCount = options.Value.TgTopCount;
 
     public Task Execute(IJobExecutionContext context)
         => Run(context.CancellationToken);
 
     private async Task Run(CancellationToken stoppingToken) {
         await _vkApiClient.AuthorizeAsync(_vkApiAuthParams, stoppingToken);
-        var topContent = new List<Item>();
+        var topContent = new Dictionary<string, List<Item>>();
 
         foreach (var group in Constants.VkGroups) {
             var vkParameters = new VkParameters {
                 { "domain", group.domain },
-                { "count", VkCountPosts },
+                { "count", _vkTopCount },
             };
             var posts = _vkApiClient.Call<CustomWall>("wall.get", vkParameters, false, Constants.CustomAttachmentJsonConverter);
 
@@ -51,7 +51,11 @@ public class TopJob(IOptions<Options> options) : IJob {
                     continue;
                 }
 
-                topContent.Add(new Item {
+                if (!topContent.ContainsKey(group.name)) {
+                    topContent[group.name] = new List<Item>();
+                }
+
+                topContent[group.name].Add(new Item {
                     Group = group.name,
                     Name = item.Name,
                     Link = $"https://vk.com/wall{post.OwnerId}_{post.Id}",
@@ -65,18 +69,23 @@ public class TopJob(IOptions<Options> options) : IJob {
             return;
         }
 
-        var names = topContent
-            .OrderByDescending(it => it.Reactions)
-            .ThenBy(it => it.Views)
-            .Select(it => it)
-            .Take(_topCount)
-            .ToArray();
-
         var message = new StringBuilder();
-        message.AppendLine($"**СУТОЧНЫЙ ТОП {_topCount}**");
-        message.AppendLine();
-        for (int i = 0; i < names.Length; i++) {
-            message.AppendLine($"{(i + 1):00}. [{names[i].Name}]({names[i].Link})");
+        message.AppendLine($"**ТОП {_tgTopCount} (из {_vkTopCount})**");
+
+        foreach (var pair in topContent) {
+            message.AppendLine();
+            message.AppendLine(pair.Key);
+
+            var names = pair.Value
+                .OrderByDescending(it => it.Reactions)
+                .ThenBy(it => it.Views)
+                .Select(it => it)
+                .Take(_tgTopCount)
+                .ToArray();
+
+            for (int i = 0; i < names.Length; i++) {
+                message.AppendLine($"{i + 1}. [{names[i].Name}]({names[i].Link})");
+            }
         }
 
         // Отправка в Телеграм
