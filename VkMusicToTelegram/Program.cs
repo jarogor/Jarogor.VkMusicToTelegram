@@ -24,21 +24,21 @@ await Console.Out.WriteLineAsync(
      """
 );
 
+if (vkApiAccessToken is null) {
+    throw new Exception("[VK_API_ACCESS_TOKEN] environment variable not found.");
+}
+
+if (tgBotId is null) {
+    throw new Exception("[TG_BOT_ID] environment variable not found.");
+}
+
+if (tgChannelId is null) {
+    throw new Exception("[TG_CHANNEL_ID] environment variable not found.");
+}
+
 builder
     .ConfigureServices((context, services) => {
         services.AddOptions<Options>().Configure(o => {
-            if (vkApiAccessToken is null) {
-                throw new Exception("[VK_API_ACCESS_TOKEN] environment variable not found.");
-            }
-
-            if (tgBotId is null) {
-                throw new Exception("[TG_BOT_ID] environment variable not found.");
-            }
-
-            if (tgChannelId is null) {
-                throw new Exception("[TG_CHANNEL_ID] environment variable not found.");
-            }
-
             o.VkCountPosts = int.Parse(vkCountPosts);
             o.TopCount = int.Parse(tgTopPublicationCount);
             o.TgBotId = tgBotId;
