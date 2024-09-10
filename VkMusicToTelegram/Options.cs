@@ -8,6 +8,5 @@ public sealed class Options
 
     public int VkLastCount { get; set; } = 20;
 
-    public int VkTopCount { get; set; } = 30;
     public int TgTopCount { get; set; } = 3;
 }

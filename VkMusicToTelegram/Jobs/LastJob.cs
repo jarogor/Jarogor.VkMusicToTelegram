@@ -11,6 +11,7 @@ using Link = VkMusicToTelegram.Dto.Link;
 
 namespace VkMusicToTelegram.Jobs;
 
+[DisallowConcurrentExecution]
 public sealed class LastJob(ILogger<LastJob> logger, IOptions<Options> options) : IJob {
     private readonly VkApi _vkApiClient = new();
     private readonly ApiAuthParams _vkApiAuthParams = new() { AccessToken = options.Value.VkApiAccessToken };

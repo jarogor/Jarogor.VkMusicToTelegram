@@ -9,22 +9,24 @@ var tgBotId = Environment.GetEnvironmentVariable("TG_BOT_ID");
 var tgChannelId = Environment.GetEnvironmentVariable("TG_CHANNEL_ID");
 
 var jobCronLast = Environment.GetEnvironmentVariable("JOB_CRON_LAST") ?? "0 0 */4 * * ?";
-var jobCronTop = Environment.GetEnvironmentVariable("JOB_CRON_TOP") ?? "0 0 18 * * ?";
+var jobCronTopWeek = Environment.GetEnvironmentVariable("JOB_CRON_TOP_WEEK") ?? "0 0 18 ? * 6";
+var jobCronTopMonth = Environment.GetEnvironmentVariable("JOB_CRON_TOP_MONTH") ?? "0 0 20 1 * ?";
 
 var vkLastCount = Environment.GetEnvironmentVariable("VK_LAST_COUNT") ?? "20";
-var vkTopCount = Environment.GetEnvironmentVariable("VK_TOP_COUNT") ?? "30";
-var tgTopCount = Environment.GetEnvironmentVariable("TG_TOP_COUNT") ?? "3";
+var tgTopCount = Environment.GetEnvironmentVariable("TG_TOP_COUNT") ?? "5";
 
 await Console.Out.WriteLineAsync(
     $"""
-     VK_TOKEN is set: {!string.IsNullOrWhiteSpace(vkApiAccessToken)}
-     TG_BOT_ID:       {tgBotId}
-     TG_CHANNEL_ID:   {tgChannelId}
-     JOB_CRON_LAST:   "{jobCronLast}"
-     JOB_CRON_TOP:    "{jobCronTop}"
-     VK_LAST_COUNT:   {vkLastCount}
-     VK_TOP_COUNT:    {vkTopCount}
-     TG_TOP_COUNT:    {tgTopCount}
+     VK_TOKEN is set:    {!string.IsNullOrWhiteSpace(vkApiAccessToken)}
+     TG_BOT_ID:          {tgBotId}
+     TG_CHANNEL_ID:      {tgChannelId}
+
+     JOB_CRON_LAST:      "{jobCronLast}"
+     JOB_CRON_TOP_WEEK:  "{jobCronTopWeek}"
+     JOB_CRON_TOP_MONTH: "{jobCronTopMonth}"
+
+     VK_LAST_COUNT:      {vkLastCount}
+     TG_TOP_COUNT:       {tgTopCount}
      """
 );
 
@@ -47,7 +49,6 @@ builder
             o.TgBotId = tgBotId;
             o.TgChannelId = tgChannelId;
             o.VkLastCount = int.Parse(vkLastCount);
-            o.VkTopCount = int.Parse(vkTopCount);
             o.TgTopCount = int.Parse(tgTopCount);
         });
 
@@ -73,8 +74,9 @@ builder
                 //   | | | | | | |
                 //   * * * * * ?
 
-                q.ScheduleJob<LastJob>(trigger => trigger.WithCronSchedule(jobCronLast), jobConfigurator => jobConfigurator.DisallowConcurrentExecution());
-                q.ScheduleJob<TopJob>(trigger => trigger.WithCronSchedule(jobCronTop), jobConfigurator => jobConfigurator.DisallowConcurrentExecution());
+                q.ScheduleJob<LastJob>(trigger => trigger.WithCronSchedule(jobCronLast));
+                q.ScheduleJob<TopWeekJob>(trigger => trigger.WithCronSchedule(jobCronTopWeek));
+                q.ScheduleJob<TopMonthJob>(trigger => trigger.WithCronSchedule(jobCronTopMonth));
             });
 
         // Quartz.Extensions.Hosting hosting
