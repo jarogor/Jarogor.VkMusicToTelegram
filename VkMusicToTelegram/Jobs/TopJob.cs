@@ -1,5 +1,6 @@
 ﻿using System.Text;
 using Microsoft.Extensions.Options;
+using Quartz;
 using Telegram.Bot;
 using Telegram.Bot.Types.Enums;
 using VkMusicToTelegram.Dto;
@@ -8,11 +9,10 @@ using VkNet.Model;
 using VkNet.Utils;
 using Link = VkMusicToTelegram.Dto.Link;
 
-namespace VkMusicToTelegram;
+namespace VkMusicToTelegram.Jobs;
 
-public class TopWorker(ILogger<TopWorker> logger, IOptions<Options> options) : BackgroundService {
+public class TopJob(IOptions<Options> options) : IJob {
     private const int VkCountPosts = 50;
-    private const double JobIntervalHours = 24;
 
     private readonly int _topCount = options.Value.TopCount;
     private readonly VkApi _vkApiClient = new();
@@ -20,17 +20,12 @@ public class TopWorker(ILogger<TopWorker> logger, IOptions<Options> options) : B
     private readonly TelegramBotClient _tgApiClient = new(options.Value.TgBotId);
     private readonly string _tgChannelId = options.Value.TgChannelId;
 
-    protected override async Task ExecuteAsync(CancellationToken stoppingToken) {
-        while (!stoppingToken.IsCancellationRequested) {
-            logger.LogInformation("run top");
-            Run();
-            await Task.Delay(TimeSpan.FromHours(JobIntervalHours), stoppingToken);
-        }
-    }
+    public Task Execute(IJobExecutionContext context)
+        => Run(context.CancellationToken);
 
-    private void Run() {
-        _vkApiClient.AuthorizeAsync(_vkApiAuthParams).GetAwaiter().GetResult();
-        var topContent = new List<TopItem>();
+    private async Task Run(CancellationToken stoppingToken) {
+        await _vkApiClient.AuthorizeAsync(_vkApiAuthParams, stoppingToken);
+        var topContent = new List<Item>();
 
         foreach (var group in Constants.VkGroups) {
             var vkParameters = new VkParameters {
@@ -56,7 +51,7 @@ public class TopWorker(ILogger<TopWorker> logger, IOptions<Options> options) : B
                     continue;
                 }
 
-                topContent.Add(new TopItem {
+                topContent.Add(new Item {
                     Group = group.name,
                     Name = item.Name,
                     Link = $"https://vk.com/wall{post.OwnerId}_{post.Id}",
@@ -85,9 +80,12 @@ public class TopWorker(ILogger<TopWorker> logger, IOptions<Options> options) : B
         }
 
         // Отправка в Телеграм
-        _tgApiClient
-            .SendTextMessageAsync(_tgChannelId, message.ToString(), parseMode: ParseMode.Markdown, disableWebPagePreview: true)
-            .GetAwaiter()
-            .GetResult();
+        await _tgApiClient.SendTextMessageAsync(
+            _tgChannelId,
+            message.ToString(),
+            parseMode: ParseMode.Markdown,
+            disableWebPagePreview: true,
+            cancellationToken: stoppingToken
+        );
     }
 }

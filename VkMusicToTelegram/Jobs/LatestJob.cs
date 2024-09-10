@@ -1,5 +1,6 @@
 ﻿using System.Text;
 using Microsoft.Extensions.Options;
+using Quartz;
 using Telegram.Bot;
 using Telegram.Bot.Types.Enums;
 using VkMusicToTelegram.Dto;
@@ -8,28 +9,22 @@ using VkNet.Model;
 using VkNet.Utils;
 using Link = VkMusicToTelegram.Dto.Link;
 
-namespace VkMusicToTelegram;
+namespace VkMusicToTelegram.Jobs;
 
-public class LatestWorker(ILogger<LatestWorker> logger, IOptions<Options> options) : BackgroundService {
+public sealed class LatestJob(ILogger<LatestJob> logger, IOptions<Options> options) : IJob {
     private readonly VkApi _vkApiClient = new();
     private readonly ApiAuthParams _vkApiAuthParams = new() { AccessToken = options.Value.VkApiAccessToken };
     private readonly int _vkCountPosts = options.Value.VkCountPosts;
     private readonly TelegramBotClient _tgApiClient = new(options.Value.TgBotId);
     private readonly string _tgChannelId = options.Value.TgChannelId;
-    private readonly double _jobIntervalHours = options.Value.JobIntervalHours;
     private readonly string _historyListFilePath = Path.Join(AppDomain.CurrentDomain.BaseDirectory, "history-list.txt");
 
-    protected override async Task ExecuteAsync(CancellationToken stoppingToken) {
-        while (!stoppingToken.IsCancellationRequested) {
-            logger.LogInformation("run latest");
-            Run();
-            await Task.Delay(TimeSpan.FromHours(_jobIntervalHours), stoppingToken);
-        }
-    }
+    public Task Execute(IJobExecutionContext context)
+        => Run(context.CancellationToken);
 
-    private void Run() {
-        _vkApiClient.AuthorizeAsync(_vkApiAuthParams).GetAwaiter().GetResult();
-        var newContent = new Dictionary<string, List<TopItem>>();
+    private async Task Run(CancellationToken stoppingToken) {
+        await _vkApiClient.AuthorizeAsync(_vkApiAuthParams, stoppingToken);
+        var newContent = new Dictionary<string, List<Item>>();
         var history = File.Exists(_historyListFilePath) ? File.ReadAllLines(_historyListFilePath).ToList() : [];
         var newHistory = new List<string>();
 
@@ -72,7 +67,7 @@ public class LatestWorker(ILogger<LatestWorker> logger, IOptions<Options> option
                 }
 
                 newHistory.Add(item.Name);
-                newContent[group.name].Add(new TopItem {
+                newContent[group.name].Add(new Item {
                     Group = group.name,
                     Name = item.Name,
                     Link = $"https://vk.com/wall{post.OwnerId}_{post.Id}",
@@ -101,13 +96,16 @@ public class LatestWorker(ILogger<LatestWorker> logger, IOptions<Options> option
         logger.LogInformation("new items count: {0}", newHistory.Count);
 
         // Отправка в Телеграм
-        _tgApiClient
-            .SendTextMessageAsync(_tgChannelId, message.ToString(), parseMode: ParseMode.Markdown, disableWebPagePreview: true)
-            .GetAwaiter()
-            .GetResult();
+        await _tgApiClient.SendTextMessageAsync(
+            _tgChannelId,
+            message.ToString(),
+            parseMode: ParseMode.Markdown,
+            disableWebPagePreview: true,
+            cancellationToken: stoppingToken
+        );
 
         // Добавление новых записей в историю
         history.AddRange(newHistory);
-        File.WriteAllLines(_historyListFilePath, history);
+        await File.WriteAllLinesAsync(_historyListFilePath, history, stoppingToken);
     }
 }

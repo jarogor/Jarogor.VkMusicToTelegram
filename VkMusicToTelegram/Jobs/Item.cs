@@ -1,6 +1,6 @@
-﻿namespace VkMusicToTelegram;
+﻿namespace VkMusicToTelegram.Jobs;
 
-public class TopItem {
+public class Item {
     public string Group { get; set; } = null!;
     public string Name { get; set; } = null!;
     public string Link { get; set; } = null!;
