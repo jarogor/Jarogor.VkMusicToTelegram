@@ -27,7 +27,7 @@ public sealed class LastJob(ILogger<LastJob> logger, IOptions<Options> options) 
     private async Task Run(CancellationToken stoppingToken) {
         await _vkApiClient.AuthorizeAsync(_vkApiAuthParams, stoppingToken);
 
-        var newContent = new Dictionary<string, List<Item>>();
+        var newContent = Constants.VkGroups.ToDictionary(group => group.name, _ => new List<Item>());
         var newHistory = new List<string>();
         var history = File.Exists(_historyListFilePath) 
             ? (await File.ReadAllLinesAsync(_historyListFilePath, stoppingToken)).ToList()
@@ -40,6 +40,7 @@ public sealed class LastJob(ILogger<LastJob> logger, IOptions<Options> options) 
             };
 
             var posts = _vkApiClient.Call<CustomWall>("wall.get", vkParameters, false, Constants.CustomAttachmentJsonConverter);
+            logger.LogInformation("{0}: domain: {1}, name: {2}, count: {3}", nameof(Run), group.domain, group.name, posts.TotalCount);
 
             foreach (var post in posts.WallPosts) {
                 // Кроме закреплённых постов
@@ -59,11 +60,6 @@ public sealed class LastJob(ILogger<LastJob> logger, IOptions<Options> options) 
                 var item = group.handler.GetPreparedTitle(post);
                 if (!item.IsExists) {
                     continue;
-                }
-
-                // Группировка по названиям пабликов
-                if (!newContent.ContainsKey(group.name)) {
-                    newContent[group.name] = [];
                 }
 
                 // Если уже публиковался ранее

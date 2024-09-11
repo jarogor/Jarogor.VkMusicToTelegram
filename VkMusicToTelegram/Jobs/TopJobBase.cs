@@ -30,7 +30,6 @@ public abstract class TopJobBase(ILogger<TopJobBase> logger, IOptions<Options> o
 
     public async Task Execute(IJobExecutionContext context) {
         _vkApiClient.Authorize(_vkApiAuthParams);
-        logger.LogInformation("ID: {0}, JKEY: {1}, TKEY: {2}", context.FireInstanceId, context.JobDetail.Key, context.Trigger.Key);
         await Run(context.CancellationToken);
     }
 
