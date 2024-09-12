@@ -39,10 +39,12 @@ public sealed class LastJob(ILogger<LastJob> logger, IOptions<Options> options) 
                 { "count", _vkLastCount },
             };
 
-            var posts = _vkApiClient.Call<CustomWall>("wall.get", vkParameters, false, Constants.CustomAttachmentJsonConverter);
-            logger.LogInformation("{0}: domain: {1}, name: {2}, count: {3}", nameof(Run), group.domain, group.name, posts.TotalCount);
+            var posts = _vkApiClient
+                .Call<CustomWall>("wall.get", vkParameters, false, Constants.CustomAttachmentJsonConverter)
+                .WallPosts;
+            logger.LogInformation("{0}: domain: {1}, name: {2}, count: {3}", nameof(Run), group.domain, group.name, posts.Count);
 
-            foreach (var post in posts.WallPosts) {
+            foreach (var post in posts) {
                 // Кроме закреплённых постов
                 if (post.IsPinned.HasValue && post.IsPinned.GetValueOrDefault()) {
                     continue;
