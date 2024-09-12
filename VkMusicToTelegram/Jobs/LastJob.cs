@@ -79,8 +79,8 @@ public sealed class LastJob(ILogger<LastJob> logger, IOptions<Options> options) 
                     Group = group.name,
                     Name = text.Name,
                     Link = $"https://vk.com/wall{post.OwnerId}_{post.Id}",
-                    Views = post.Views.Count,
-                    Reactions = post.Likes.Count,
+                    Views = post.Views?.Count ?? 0,
+                    Reactions = post.Likes?.Count ?? 0,
                 };
 
                 newHistory.Add(text.Name);

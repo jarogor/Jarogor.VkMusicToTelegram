@@ -56,8 +56,8 @@ public abstract class TopJobBase(ILogger<TopJobBase> logger, IOptions<Options> o
             Group = groupName,
             Name = text.Name,
             Link = $"https://vk.com/wall{post.OwnerId}_{post.Id}",
-            Views = post.Views.Count,
-            Reactions = post.Likes.Count,
+            Views = post.Views?.Count ?? 0,
+            Reactions = post.Likes?.Count ?? 0,
         };
 
         if (!_topContent.ContainsKey(groupName)) {
