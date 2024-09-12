@@ -75,12 +75,18 @@ public sealed class LastJob(ILogger<LastJob> logger, IOptions<Options> options) 
                     continue;
                 }
 
+                var groupName = group.name;
+                var textName = text.Name;
+                var postOwnerId = post.OwnerId;
+                var postId = post.Id;
+                var postViews = post.Views;
+                var postLikes = post.Likes;
                 var item = new Item {
-                    Group = group.name,
-                    Name = text.Name,
-                    Link = $"https://vk.com/wall{post.OwnerId}_{post.Id}",
-                    Views = post.Views?.Count ?? 0,
-                    Reactions = post.Likes?.Count ?? 0,
+                    Group = groupName,
+                    Name = textName,
+                    Link = $"https://vk.com/wall{postOwnerId}_{postId}",
+                    Views = postViews?.Count ?? 0,
+                    Reactions = postLikes?.Count ?? 0,
                 };
 
                 newHistory.Add(text.Name);
