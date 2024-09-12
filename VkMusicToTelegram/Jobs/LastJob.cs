@@ -48,6 +48,14 @@ public sealed class LastJob(ILogger<LastJob> logger, IOptions<Options> options) 
                     continue;
                 }
 
+                if (!post.OwnerId.HasValue) {
+                    continue;
+                }
+
+                if (!post.Id.HasValue) {
+                    continue;
+                }
+
                 // Посты с плейлистами
                 var attachments = post.Attachments
                     .Where(it => it.Type == typeof(Link))
@@ -57,24 +65,26 @@ public sealed class LastJob(ILogger<LastJob> logger, IOptions<Options> options) 
                 }
 
                 // После обработки названия
-                var item = group.handler.GetPreparedTitle(post);
-                if (!item.IsExists) {
+                var text = group.handler.GetPreparedTitle(post);
+                if (!text.IsExists) {
                     continue;
                 }
 
                 // Если уже публиковался ранее
-                if (history.Contains(item.Name)) {
+                if (history.Contains(text.Name)) {
                     continue;
                 }
 
-                newHistory.Add(item.Name);
-                newContent[group.name].Add(new Item {
+                var item = new Item {
                     Group = group.name,
-                    Name = item.Name,
+                    Name = text.Name,
                     Link = $"https://vk.com/wall{post.OwnerId}_{post.Id}",
                     Views = post.Views.Count,
                     Reactions = post.Likes.Count,
-                });
+                };
+
+                newHistory.Add(text.Name);
+                newContent[group.name].Add(item);
             }
         }
 

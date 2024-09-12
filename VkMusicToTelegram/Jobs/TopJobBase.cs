@@ -51,24 +51,34 @@ public abstract class TopJobBase(ILogger<TopJobBase> logger, IOptions<Options> o
     }
 
     // Добавление записи в итоговую коллекцию
-    private void Append(string groupName, Text item, Post post) {
-        if (!_topContent.ContainsKey(groupName)) {
-            logger.LogInformation("{0} _topContent groupName: {1}", nameof(Append), groupName);
-            _topContent[groupName] = new List<Item>();
-        }
-
-        _topContent[groupName].Add(new Item {
+    private void Append(string groupName, Text text, Post post) {
+        var item = new Item {
             Group = groupName,
-            Name = item.Name,
+            Name = text.Name,
             Link = $"https://vk.com/wall{post.OwnerId}_{post.Id}",
             Views = post.Views.Count,
             Reactions = post.Likes.Count,
-        });
+        };
+
+        if (!_topContent.ContainsKey(groupName)) {
+            logger.LogInformation("{0} _topContent groupName: {1}", nameof(Append), groupName);
+            _topContent[groupName] = [];
+        }
+
+        _topContent[groupName].Add(item);
     }
 
     private static bool IsSkip(Post post) {
         // Пропуск закрепленных постов
         if (post.IsPinned.HasValue && post.IsPinned.GetValueOrDefault()) {
+            return true;
+        }
+
+        if (!post.OwnerId.HasValue) {
+            return true;
+        }
+
+        if (!post.Id.HasValue) {
             return true;
         }
 
