@@ -4,7 +4,7 @@ using VkMusicToTelegram.Dto;
 namespace VkMusicToTelegram.PostHandlers;
 
 public abstract class Handler1Base : IHandler {
-    private static readonly Regex Regex = new(@"\[.+?\|(.+?)\]", RegexOptions.Singleline, TimeSpan.FromMilliseconds(50));
+    private static readonly Regex Regex = new(@"\[.+?|.+?\]", RegexOptions.Singleline, TimeSpan.FromMilliseconds(50));
 
     public abstract string Domain { get; }
     public abstract string Name { get; }
