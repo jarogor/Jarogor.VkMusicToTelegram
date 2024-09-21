@@ -4,16 +4,13 @@ using VkNet.Utils;
 
 namespace VkMusicToTelegram.Dto;
 
-public static class Extensions
-{
-    public static Attachment CustomLinkFromJson(this AttachmentConverterService attachmentConverter, JToken item)
-    {
+public static class Extensions {
+    public static Attachment CustomLinkFromJson(this AttachmentConverterService attachmentConverter, JToken item) {
         var type = item["type"]!.ToString();
         var typeToken = item[type]!;
 
         return type == "link"
-            ? new Attachment
-            {
+            ? new Attachment {
                 Type = typeof(Link),
                 Instance = typeToken.ToObject<Link>()
             }

@@ -7,13 +7,11 @@ namespace VkMusicToTelegram.PostHandlers.Handlers;
 /// - вторая непустая строка это название вида `#Какая_То_Группа - название альбома и всё такое`, поэтому оно не годится
 /// - название можно брать из плейлиста, у них оно более-менее единообразно оформленное с правильным написанием `группа - альбом (год)` 
 /// </summary>
-public sealed class AsylumForesters : IHandler
-{
+public sealed class AsylumForesters : IHandler {
     public string Domain => "asylumforesters_vk";
     public string Name => "Убежище Лесников";
 
-    public Text GetPreparedTitle(Post post)
-    {
+    public Record GetPreparedTitle(Post post) {
         var playlistsNames = post
             .Attachments
             .Where(it => it.Type == typeof(Link))
@@ -24,7 +22,7 @@ public sealed class AsylumForesters : IHandler
             .ToList();
 
         return playlistsNames.Count <= 0
-            ? new Text()
-            : new Text(string.Join(",", playlistsNames), true);
+            ? new Record()
+            : new Record(string.Join(",", playlistsNames), true);
     }
 }

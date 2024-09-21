@@ -29,7 +29,7 @@ public sealed class LastJob(ILogger<LastJob> logger, IOptions<Options> options) 
 
         var newContent = Constants.VkGroups.ToDictionary(group => group.name, _ => new List<Item>());
         var newHistory = new List<string>();
-        var history = File.Exists(_historyListFilePath) 
+        var history = File.Exists(_historyListFilePath)
             ? (await File.ReadAllLinesAsync(_historyListFilePath, stoppingToken)).ToList()
             : [];
 

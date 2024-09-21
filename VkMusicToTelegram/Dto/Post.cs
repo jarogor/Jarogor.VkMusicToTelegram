@@ -5,8 +5,7 @@ using VkNet.Model;
 namespace VkMusicToTelegram.Dto;
 
 [Serializable]
-public class Post : VkNet.Model.Post
-{
+public class Post : VkNet.Model.Post {
     /// <summary>
     /// Информация о вложениях записи (фотографии ссылки и т.п.).
     /// </summary>

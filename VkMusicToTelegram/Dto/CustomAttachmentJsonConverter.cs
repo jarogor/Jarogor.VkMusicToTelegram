@@ -7,21 +7,18 @@ using VkNet.Utils;
 
 namespace VkMusicToTelegram.Dto;
 
-public class CustomAttachmentJsonConverter : JsonConverter
-{
+public class CustomAttachmentJsonConverter : JsonConverter {
     /// <inheritdoc />
     public override bool CanConvert(Type objectType) => typeof(ReadOnlyCollection<>).IsAssignableFrom(c: objectType);
 
     /// <inheritdoc />
     /// <exception cref="T:System.NotImplementedException"> </exception>
-    public override void WriteJson(JsonWriter writer, object value, JsonSerializer serializer)
-    {
+    public override void WriteJson(JsonWriter writer, object value, JsonSerializer serializer) {
         var attachments = (IEnumerable<Attachment>)value;
 
         var jArray = new JArray();
 
-        foreach (var attachment in attachments)
-        {
+        foreach (var attachment in attachments) {
             var type = attachment.Type.Name.ToLower();
 
             var jObj = new JObject
@@ -38,20 +35,16 @@ public class CustomAttachmentJsonConverter : JsonConverter
 
     /// <inheritdoc />
     /// <exception cref="T:System.TypeAccessException"> </exception>
-    public override object ReadJson(JsonReader reader, Type objectType, object existingValue, JsonSerializer serializer)
-    {
-        if (!objectType.IsGenericType)
-        {
+    public override object ReadJson(JsonReader reader, Type objectType, object existingValue, JsonSerializer serializer) {
+        if (!objectType.IsGenericType) {
             throw new TypeAccessException();
         }
 
-        if (reader.TokenType is JsonToken.Null)
-        {
+        if (reader.TokenType is JsonToken.Null) {
             return null;
         }
 
-        if (reader.TokenType is not JsonToken.StartArray)
-        {
+        if (reader.TokenType is not JsonToken.StartArray) {
             return null;
         }
 
@@ -61,8 +54,7 @@ public class CustomAttachmentJsonConverter : JsonConverter
         var list = (IList)Activator.CreateInstance(type: constructedListType);
 
         var obj = JArray.Load(reader: reader);
-        foreach (var item in obj)
-        {
+        foreach (var item in obj) {
             list.Add(AttachmentConverterService.Instance.CustomLinkFromJson(item));
         }
 

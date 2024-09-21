@@ -3,8 +3,7 @@
 namespace VkMusicToTelegram.Dto;
 
 [Serializable]
-public class Link : VkNet.Model.Link
-{
+public class Link : VkNet.Model.Link {
     [JsonProperty("ref", NullValueHandling = NullValueHandling.Ignore)]
     public string? Ref { get; set; }
 

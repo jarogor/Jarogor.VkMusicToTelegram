@@ -5,8 +5,7 @@ using VkNet.Model;
 namespace VkMusicToTelegram.Dto;
 
 [Serializable]
-public sealed class CustomWall
-{
+public sealed class CustomWall {
     /// <summary>
     /// Общее количество записей на стене.
     /// </summary>

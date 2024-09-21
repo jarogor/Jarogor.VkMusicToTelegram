@@ -51,10 +51,10 @@ public abstract class TopJobBase(ILogger<TopJobBase> logger, IOptions<Options> o
     }
 
     // Добавление записи в итоговую коллекцию
-    private void Append(string groupName, Text text, Post post) {
+    private void Append(string groupName, Record record, Post post) {
         var item = new Item {
             Group = groupName,
-            Name = text.Name,
+            Name = record.Name,
             Link = $"https://vk.com/wall{post.OwnerId}_{post.Id}",
             Views = post.Views?.Count ?? 0,
             Reactions = post.Likes?.Count ?? 0,
