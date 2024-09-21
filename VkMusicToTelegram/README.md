@@ -1,4 +1,9 @@
-﻿```sh
+﻿```shell
+# build
+dotnet publish -r linux-x64 -p:PublishSingleFile=true --self-contained false
+```
+
+```sh
 # создание сервисного пользователя, если потребуется
 sudo useradd --system --no-create-home --shell=/sbin/nologin vktotg
 
