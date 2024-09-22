@@ -22,7 +22,7 @@ public sealed class AsylumForesters : IHandler {
             .ToList();
 
         return playlistsNames.Count <= 0
-            ? new Record()
+            ? new NullRecord()
             : new Record(string.Join(",", playlistsNames), true);
     }
 }
