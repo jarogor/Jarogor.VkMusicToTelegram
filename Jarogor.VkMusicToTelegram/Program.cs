@@ -1,6 +1,6 @@
-﻿using Quartz;
-using Jarogor.VkMusicToTelegram;
+﻿using Jarogor.VkMusicToTelegram;
 using Jarogor.VkMusicToTelegram.Jobs;
+using Quartz;
 
 const string vkToken = "VK_TOKEN";
 const string botId = "TG_BOT_ID";

@@ -11,29 +11,26 @@ using VkNet.Model;
 using VkNet.Utils;
 using Dto_Link = Jarogor.VkMusicToTelegram.Dto.Link;
 using Dto_Post = Jarogor.VkMusicToTelegram.Dto.Post;
-using Link = Jarogor.VkMusicToTelegram.Dto.Link;
-using Post = Jarogor.VkMusicToTelegram.Dto.Post;
 
 namespace Jarogor.VkMusicToTelegram.Jobs;
 
 public abstract class TopJobBase(ILogger<TopJobBase> logger, IOptions<Options> options) : IJob {
-    private readonly Dictionary<string, List<Item>> _topContent = new();
-
-    private readonly VkApi _vkApiClient = new();
-    private readonly ApiAuthParams _vkApiAuthParams = new() { AccessToken = options.Value.VkApiAccessToken };
-
     private readonly TelegramBotClient _tgApiClient = new(options.Value.TgBotId);
     private readonly string _tgChannelId = options.Value.TgChannelId;
 
     private readonly int _tgTopCount = options.Value.TgTopCount;
+    private readonly Dictionary<string, List<Item>> _topContent = new();
+    private readonly ApiAuthParams _vkApiAuthParams = new() { AccessToken = options.Value.VkApiAccessToken };
 
-    protected abstract TimeSpan Interval();
-    protected abstract Task Run(CancellationToken stoppingToken);
+    private readonly VkApi _vkApiClient = new();
 
     public async Task Execute(IJobExecutionContext context) {
         _vkApiClient.Authorize(_vkApiAuthParams);
         await Run(context.CancellationToken);
     }
+
+    protected abstract TimeSpan Interval();
+    protected abstract Task Run(CancellationToken stoppingToken);
 
     protected void Handle(string domain, string groupName, IHandler handler, int count) {
         logger.LogInformation("{0}: domain: {1}, name: {2}, count: {3}", nameof(Handle), domain, groupName, count);
@@ -126,7 +123,7 @@ public abstract class TopJobBase(ILogger<TopJobBase> logger, IOptions<Options> o
                 .Take(_tgTopCount)
                 .ToArray();
 
-            for (int i = 0; i < names.Length; i++) {
+            for (var i = 0; i < names.Length; i++) {
                 message.AppendLine($"{i + 1}. [{names[i].Name}]({names[i].Link})");
             }
         }
@@ -168,7 +165,7 @@ public abstract class TopJobBase(ILogger<TopJobBase> logger, IOptions<Options> o
         logger.LogInformation("{0}, latestDate: {1}, interval: {2}", nameof(CreateIntervalPosts), latestDate, interval);
 
         return orderByDescending
-            .TakeWhile(it => (latestDate - it.Date) < interval)
+            .TakeWhile(it => latestDate - it.Date < interval)
             .ToList();
     }
 

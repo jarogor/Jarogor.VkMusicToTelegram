@@ -21,7 +21,7 @@ public abstract class Handler1Base : IHandler {
             return new NullRecord();
         }
 
-        (bool success, string artistName) = this.ParseArtistName(name);
+        var (success, artistName) = this.ParseArtistName(name);
 
         return success || !Regex.IsMatch(artistName)
             ? new Record(artistName, true)

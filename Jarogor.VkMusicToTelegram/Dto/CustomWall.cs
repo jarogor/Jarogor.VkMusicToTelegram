@@ -7,25 +7,25 @@ namespace Jarogor.VkMusicToTelegram.Dto;
 [Serializable]
 public sealed class CustomWall {
     /// <summary>
-    /// Общее количество записей на стене.
+    ///     Общее количество записей на стене.
     /// </summary>
     [JsonProperty("count")]
     public ulong TotalCount { get; set; }
 
     /// <summary>
-    /// Посты.
+    ///     Посты.
     /// </summary>
     [JsonProperty("items")]
     public ReadOnlyCollection<Post> WallPosts { get; set; }
 
     /// <summary>
-    /// Профили.
+    ///     Профили.
     /// </summary>
     [JsonProperty("profiles")]
     public ReadOnlyCollection<User> Profiles { get; set; }
 
     /// <summary>
-    /// Группы.
+    ///     Группы.
     /// </summary>
     [JsonProperty("groups")]
     public ReadOnlyCollection<Group> Groups { get; set; }

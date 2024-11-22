@@ -8,19 +8,18 @@ using VkNet;
 using VkNet.Model;
 using VkNet.Utils;
 using Dto_Link = Jarogor.VkMusicToTelegram.Dto.Link;
-using Link = Jarogor.VkMusicToTelegram.Dto.Link;
 
 namespace Jarogor.VkMusicToTelegram.Jobs;
 
 [DisallowConcurrentExecution]
 public sealed class LastJob(ILogger<LastJob> logger, IOptions<Options> options) : IJob {
-    private readonly VkApi _vkApiClient = new();
-    private readonly ApiAuthParams _vkApiAuthParams = new() { AccessToken = options.Value.VkApiAccessToken };
+    private readonly string _historyListFilePath = Path.Join(AppDomain.CurrentDomain.BaseDirectory, "history-list.txt");
     private readonly TelegramBotClient _tgApiClient = new(options.Value.TgBotId);
     private readonly string _tgChannelId = options.Value.TgChannelId;
+    private readonly ApiAuthParams _vkApiAuthParams = new() { AccessToken = options.Value.VkApiAccessToken };
+    private readonly VkApi _vkApiClient = new();
 
     private readonly int _vkLastCount = options.Value.VkLastCount;
-    private readonly string _historyListFilePath = Path.Join(AppDomain.CurrentDomain.BaseDirectory, "history-list.txt");
 
     public Task Execute(IJobExecutionContext context)
         => Run(context.CancellationToken);

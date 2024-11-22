@@ -9,7 +9,7 @@ namespace Jarogor.VkMusicToTelegram.Dto;
 
 public class CustomAttachmentJsonConverter : JsonConverter {
     /// <inheritdoc />
-    public override bool CanConvert(Type objectType) => typeof(ReadOnlyCollection<>).IsAssignableFrom(c: objectType);
+    public override bool CanConvert(Type objectType) => typeof(ReadOnlyCollection<>).IsAssignableFrom(objectType);
 
     /// <inheritdoc />
     /// <exception cref="T:System.NotImplementedException"> </exception>
@@ -21,10 +21,9 @@ public class CustomAttachmentJsonConverter : JsonConverter {
         foreach (var attachment in attachments) {
             var type = attachment.Type.Name.ToLower();
 
-            var jObj = new JObject
-            {
+            var jObj = new JObject {
                 { "type", type },
-                { type, JToken.FromObject(attachment.Instance, serializer) }
+                { type, JToken.FromObject(attachment.Instance, serializer) },
             };
 
             jArray.Add(jObj);
@@ -51,9 +50,9 @@ public class CustomAttachmentJsonConverter : JsonConverter {
         var keyType = objectType.GetGenericArguments()[0];
 
         var constructedListType = typeof(List<>).MakeGenericType(keyType);
-        var list = (IList)Activator.CreateInstance(type: constructedListType);
+        var list = (IList)Activator.CreateInstance(constructedListType);
 
-        var obj = JArray.Load(reader: reader);
+        var obj = JArray.Load(reader);
         foreach (var item in obj) {
             list.Add(AttachmentConverterService.Instance.CustomLinkFromJson(item));
         }

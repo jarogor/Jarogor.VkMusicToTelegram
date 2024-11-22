@@ -12,7 +12,7 @@ public static class Extensions {
         return type == "link"
             ? new Attachment {
                 Type = typeof(Link),
-                Instance = typeToken.ToObject<Link>()
+                Instance = typeToken.ToObject<Link>(),
             }
             : attachmentConverter.FromJson(item);
     }
