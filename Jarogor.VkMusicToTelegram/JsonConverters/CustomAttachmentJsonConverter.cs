@@ -5,7 +5,7 @@ using Newtonsoft.Json.Linq;
 using VkNet.Model;
 using VkNet.Utils;
 
-namespace Jarogor.VkMusicToTelegram.Dto;
+namespace Jarogor.VkMusicToTelegram.JsonConverters;
 
 public class CustomAttachmentJsonConverter : JsonConverter {
     /// <inheritdoc />

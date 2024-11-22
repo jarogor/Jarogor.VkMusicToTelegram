@@ -1,4 +1,4 @@
-﻿using Jarogor.VkMusicToTelegram.Dto;
+﻿using Jarogor.VkMusicToTelegram.JsonConverters;
 using Jarogor.VkMusicToTelegram.PostHandlers;
 using Jarogor.VkMusicToTelegram.PostHandlers.Handlers;
 
