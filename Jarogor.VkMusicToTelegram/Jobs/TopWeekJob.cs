@@ -9,7 +9,7 @@ public sealed class TopWeekJob(ILogger<TopWeekJob> logger, IOptions<Options> opt
 
     protected override async Task Run(CancellationToken stoppingToken) {
         foreach (var group in Constants.VkGroups) {
-            Handle(group.domain, group.name, group.handler, group.top.Week);
+            Handle(group.Domain, group.Name, group.Handler, group.Top.Week);
         }
 
         await SendTgMessage("неделя", stoppingToken);

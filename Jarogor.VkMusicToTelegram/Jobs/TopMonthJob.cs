@@ -9,7 +9,7 @@ public sealed class TopMonthJob(ILogger<TopMonthJob> logger, IOptions<Options> o
 
     protected override async Task Run(CancellationToken stoppingToken) {
         foreach (var group in Constants.VkGroups) {
-            Handle(group.domain, group.name, group.handler, group.top.Month);
+            Handle(group.Domain, group.Name, group.Handler, group.Top.Month);
         }
 
         await SendTgMessage("месяц", stoppingToken);

@@ -1,4 +1,5 @@
-﻿using System.Text;
+﻿using System.Collections.ObjectModel;
+using System.Text;
 using Jarogor.VkMusicToTelegram.Dto;
 using Microsoft.Extensions.Options;
 using Quartz;
@@ -8,12 +9,13 @@ using VkNet;
 using VkNet.Model;
 using VkNet.Utils;
 using Dto_Link = Jarogor.VkMusicToTelegram.Dto.Link;
+using Post = Jarogor.VkMusicToTelegram.Dto.Post;
 
 namespace Jarogor.VkMusicToTelegram.Jobs;
 
 [DisallowConcurrentExecution]
 public sealed class LastJob(ILogger<LastJob> logger, IOptions<Options> options) : IJob {
-    private readonly string _historyListFilePath = Path.Join(AppDomain.CurrentDomain.BaseDirectory, "history-list.txt");
+    private static string HistoryListFilePath => Path.Join(AppDomain.CurrentDomain.BaseDirectory, $"history-list-{DateTime.Now.Month}.txt");
     private readonly TelegramBotClient _tgApiClient = new(options.Value.TgBotId);
     private readonly string _tgChannelId = options.Value.TgChannelId;
     private readonly ApiAuthParams _vkApiAuthParams = new() { AccessToken = options.Value.VkApiAccessToken };
@@ -27,72 +29,13 @@ public sealed class LastJob(ILogger<LastJob> logger, IOptions<Options> options) 
     private async Task Run(CancellationToken stoppingToken) {
         await _vkApiClient.AuthorizeAsync(_vkApiAuthParams, stoppingToken);
 
-        var newContent = Constants.VkGroups.ToDictionary(group => group.name, _ => new List<Item>());
+        var newContent = Constants.VkGroups.ToDictionary(group => group.Name, _ => new List<Item>());
+        var history = await GetHistory(stoppingToken);
         var newHistory = new List<string>();
-        var history = File.Exists(_historyListFilePath)
-            ? (await File.ReadAllLinesAsync(_historyListFilePath, stoppingToken)).ToList()
-            : [];
 
         foreach (var group in Constants.VkGroups) {
-            var vkParameters = new VkParameters {
-                { "domain", group.domain },
-                { "count", _vkLastCount },
-            };
-
-            var posts = _vkApiClient
-                .Call<CustomWall>("wall.get", vkParameters, true, Constants.CustomAttachmentJsonConverter)
-                .WallPosts;
-            logger.LogInformation("{0}: domain: {1}, name: {2}, count: {3}", nameof(Run), group.domain, group.name, posts.Count);
-
-            foreach (var post in posts) {
-                // Кроме закреплённых постов
-                if (post.IsPinned.HasValue && post.IsPinned.GetValueOrDefault()) {
-                    continue;
-                }
-
-                if (!post.OwnerId.HasValue) {
-                    continue;
-                }
-
-                if (!post.Id.HasValue) {
-                    continue;
-                }
-
-                // Посты с плейлистами
-                var attachments = post.Attachments
-                    .Where(it => it.Type == typeof(Dto_Link))
-                    .ToList();
-                if (attachments.Count == 0) {
-                    continue;
-                }
-
-                // После обработки названия
-                var text = group.handler.GetPreparedTitle(post);
-                if (!text.IsExists) {
-                    continue;
-                }
-
-                // Если уже публиковался ранее
-                if (history.Contains(text.Name)) {
-                    continue;
-                }
-
-                var groupName = group.name;
-                var textName = text.Name;
-                var postOwnerId = post.OwnerId;
-                var postId = post.Id;
-                var postViews = post.Views;
-                var postLikes = post.Likes;
-                var item = new Item {
-                    Group = groupName,
-                    Name = textName,
-                    Link = $"https://vk.com/wall{postOwnerId}_{postId}",
-                    Views = postViews?.Count ?? 0,
-                    Reactions = postLikes?.Count ?? 0,
-                };
-
-                newHistory.Add(text.Name);
-                newContent[group.name].Add(item);
+            foreach (var post in GetPosts(group)) {
+                HandlePost(post, group, history, newHistory, newContent);
             }
         }
 
@@ -100,9 +43,25 @@ public sealed class LastJob(ILogger<LastJob> logger, IOptions<Options> options) 
             return;
         }
 
-        // Формирование сообщения
+        // Отправка в Телеграм
+        await _tgApiClient.SendTextMessageAsync(
+            _tgChannelId,
+            CreateMessage(newContent, newHistory).ToString(),
+            parseMode: ParseMode.Markdown,
+            disableWebPagePreview: true,
+            cancellationToken: stoppingToken
+        );
+
+        // Добавление новых записей в историю
+        history.AddRange(newHistory);
+        await File.WriteAllLinesAsync(HistoryListFilePath, history, stoppingToken);
+    }
+
+    // Формирование сообщения
+    private StringBuilder CreateMessage(Dictionary<string, List<Item>> newContent, List<string> newHistory) {
         var message = new StringBuilder();
         var items = newContent.Where(pair => pair.Value.Count > 0);
+
         foreach (var pair in items) {
             message.AppendLine(pair.Key);
             foreach (var item in pair.Value) {
@@ -114,17 +73,73 @@ public sealed class LastJob(ILogger<LastJob> logger, IOptions<Options> options) 
 
         logger.LogInformation("new items count: {0}", newHistory.Count);
 
-        // Отправка в Телеграм
-        await _tgApiClient.SendTextMessageAsync(
-            _tgChannelId,
-            message.ToString(),
-            parseMode: ParseMode.Markdown,
-            disableWebPagePreview: true,
-            cancellationToken: stoppingToken
-        );
+        return message;
+    }
 
-        // Добавление новых записей в историю
-        history.AddRange(newHistory);
-        await File.WriteAllLinesAsync(_historyListFilePath, history, stoppingToken);
+    private static async Task<List<string>> GetHistory(CancellationToken stoppingToken)
+        => File.Exists(HistoryListFilePath)
+            ? (await File.ReadAllLinesAsync(HistoryListFilePath, stoppingToken)).ToList()
+            : [];
+
+    private ReadOnlyCollection<Post> GetPosts(Group group) {
+        var vkParameters = new VkParameters {
+            { "domain", group.Domain },
+            { "count", _vkLastCount },
+        };
+
+        var posts = _vkApiClient
+            .Call<CustomWall>("wall.get", vkParameters, true, Constants.CustomAttachmentJsonConverter)
+            .WallPosts;
+
+        logger.LogInformation("{0}: domain: {1}, name: {2}, count: {3}", nameof(Run), group.Domain, group.Name, posts.Count);
+
+        return posts;
+    }
+
+    private static void HandlePost(Post post, Group group, List<string> history, List<string> newHistory, Dictionary<string, List<Item>> newContent) {
+        // Кроме закреплённых постов
+        if (post.IsPinned.HasValue && post.IsPinned.GetValueOrDefault()) {
+            return;
+        }
+
+        if (!post.OwnerId.HasValue) {
+            return;
+        }
+
+        if (!post.Id.HasValue) {
+            return;
+        }
+
+        // Посты с плейлистами
+        var attachments = post
+            .Attachments
+            .Where(it => it.Type == typeof(Dto_Link))
+            .ToList();
+
+        if (attachments.Count == 0) {
+            return;
+        }
+
+        // После обработки названия
+        var text = group.Handler.GetPreparedTitle(post);
+        if (!text.IsExists) {
+            return;
+        }
+
+        // Если уже публиковался ранее
+        if (history.Contains(text.Name)) {
+            return;
+        }
+
+        var item = new Item {
+            Group = group.Name,
+            Name = text.Name,
+            Link = $"https://vk.com/wall{post.OwnerId}_{post.Id}",
+            Views = post.Views?.Count ?? 0,
+            Reactions = post.Likes?.Count ?? 0,
+        };
+
+        newHistory.Add(text.Name);
+        newContent[group.Name].Add(item);
     }
 }
