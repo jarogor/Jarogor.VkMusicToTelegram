@@ -40,7 +40,7 @@ public sealed class LastJob(ILogger<LastJob> logger, IOptions<Options> options) 
             };
 
             var posts = _vkApiClient
-                .Call<CustomWall>("wall.get", vkParameters, false, Constants.CustomAttachmentJsonConverter)
+                .Call<CustomWall>("wall.get", vkParameters, true, Constants.CustomAttachmentJsonConverter)
                 .WallPosts;
             logger.LogInformation("{0}: domain: {1}, name: {2}, count: {3}", nameof(Run), group.domain, group.name, posts.Count);
 
