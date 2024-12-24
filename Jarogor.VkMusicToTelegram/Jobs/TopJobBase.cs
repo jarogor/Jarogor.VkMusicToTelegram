@@ -5,6 +5,7 @@ using Jarogor.VkMusicToTelegram.PostHandlers;
 using Microsoft.Extensions.Options;
 using Quartz;
 using Telegram.Bot;
+using Telegram.Bot.Types;
 using Telegram.Bot.Types.Enums;
 using VkNet;
 using VkNet.Model;
@@ -99,11 +100,11 @@ public abstract class TopJobBase(ILogger<TopJobBase> logger, IOptions<Options> o
 
         // Отправка в Телеграм
         await _tgApiClient
-            .SendTextMessageAsync(
+            .SendMessage(
                 _tgChannelId,
                 CreateMessage(topName),
-                parseMode: ParseMode.Markdown,
-                disableWebPagePreview: true,
+                linkPreviewOptions: new LinkPreviewOptions { IsDisabled = true },
+                parseMode: ParseMode.Html,
                 cancellationToken: stoppingToken
             );
     }
@@ -124,7 +125,7 @@ public abstract class TopJobBase(ILogger<TopJobBase> logger, IOptions<Options> o
                 .ToArray();
 
             for (var i = 0; i < names.Length; i++) {
-                message.AppendLine($"{i + 1}. [{names[i].Name}]({names[i].Link})");
+                message.AppendLine($"""{i + 1}. <a href="{names[i].Link}">{names[i].Name}</a>""");
             }
         }
 

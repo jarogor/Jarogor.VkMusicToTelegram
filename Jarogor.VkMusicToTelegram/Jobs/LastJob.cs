@@ -4,11 +4,13 @@ using Jarogor.VkMusicToTelegram.Dto;
 using Microsoft.Extensions.Options;
 using Quartz;
 using Telegram.Bot;
+using Telegram.Bot.Types;
 using Telegram.Bot.Types.Enums;
 using VkNet;
 using VkNet.Model;
 using VkNet.Utils;
 using Dto_Link = Jarogor.VkMusicToTelegram.Dto.Link;
+using File = System.IO.File;
 using Post = Jarogor.VkMusicToTelegram.Dto.Post;
 
 namespace Jarogor.VkMusicToTelegram.Jobs;
@@ -44,11 +46,11 @@ public sealed class LastJob(ILogger<LastJob> logger, IOptions<Options> options) 
         }
 
         // Отправка в Телеграм
-        await _tgApiClient.SendTextMessageAsync(
+        await _tgApiClient.SendMessage(
             _tgChannelId,
             CreateMessage(newContent, newHistory).ToString(),
-            parseMode: ParseMode.Markdown,
-            disableWebPagePreview: true,
+            linkPreviewOptions: new LinkPreviewOptions { IsDisabled = true },
+            parseMode: ParseMode.Html,
             cancellationToken: stoppingToken
         );
 
@@ -65,7 +67,7 @@ public sealed class LastJob(ILogger<LastJob> logger, IOptions<Options> options) 
         foreach (var pair in items) {
             message.AppendLine(pair.Key);
             foreach (var item in pair.Value) {
-                message.AppendLine("- " + $"[{item.Name}]({item.Link})");
+                message.AppendLine($"""- <a href="{item.Link}">{item.Name}</a>""");
             }
 
             message.AppendLine();
