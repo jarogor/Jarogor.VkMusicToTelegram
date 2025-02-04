@@ -14,7 +14,6 @@
 - `E:\music\black metal` (https://vk.com/e_black_metal)
 - `E:\music\post` (https://vk.com/post_music)
 - `E:\music\progressive metal` (https://vk.com/progressivemetal)
-- `Русский блэк-метал` (https://vk.com/ru_black_metal)
 
 ## Билд и развёртывание на сервере
 
@@ -31,12 +30,12 @@
 
 ```shell
 # build
-dotnet publish -r linux-x64 -p:PublishSingleFile=true --self-contained false
+dotnet publish -r linux-x64 -p:PublishSingleFile=true --self-contained
 
 # создание сервисного пользователя, если потребуется
 sudo useradd --system --no-create-home --shell=/sbin/nologin vktotg
 
-# 1. создание симлинка сервиса (не уверен в работоспособности, тогда вместо симлинка создать файл сервиса)
+# 1. создание симлинка сервиса
 ln -s /opt/vktotg/vktotg.service /etc/systemd/system/
 # 2. перечитывание настроек сервисов systemd
 sudo systemctl daemon-reload

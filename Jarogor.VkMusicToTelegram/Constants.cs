@@ -1,6 +1,6 @@
-﻿using Jarogor.VkMusicToTelegram.JsonConverters;
-using Jarogor.VkMusicToTelegram.PostHandlers;
-using Jarogor.VkMusicToTelegram.PostHandlers.Handlers;
+﻿using Jarogor.VkMusicToTelegram.Entry;
+using Jarogor.VkMusicToTelegram.Entry.Handlers;
+using Jarogor.VkMusicToTelegram.JsonConverters;
 
 namespace Jarogor.VkMusicToTelegram;
 
@@ -15,7 +15,6 @@ public static class Constants {
         new("e_black_metal", @"E:\music\black metal", new EBlackMetal(), new TopCount(25, 10)),
         new("post_music", @"E:\music\post", new EPost(), new TopCount(35, 15)),
         new("progressivemetal", @"E:\music\progressive metal", new EProgressiveMetal(), new TopCount(25, 10)),
-        new("ru_black_metal", "Русский блэк-метал", new RuBlackMetal(), new TopCount(100, 30)),
     ];
 }
 

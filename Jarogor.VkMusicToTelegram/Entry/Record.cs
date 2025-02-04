@@ -1,4 +1,4 @@
-﻿namespace Jarogor.VkMusicToTelegram.PostHandlers;
+﻿namespace Jarogor.VkMusicToTelegram.Entry;
 
 public class Record(string name, bool isExists = false) {
     public string Name { get; } = name;

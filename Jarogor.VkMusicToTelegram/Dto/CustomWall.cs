@@ -16,17 +16,17 @@ public sealed class CustomWall {
     ///     Посты.
     /// </summary>
     [JsonProperty("items")]
-    public ReadOnlyCollection<Post> WallPosts { get; set; }
+    public ReadOnlyCollection<Post>? WallPosts { get; set; }
 
     /// <summary>
     ///     Профили.
     /// </summary>
     [JsonProperty("profiles")]
-    public ReadOnlyCollection<User> Profiles { get; set; }
+    public ReadOnlyCollection<User>? Profiles { get; set; }
 
     /// <summary>
     ///     Группы.
     /// </summary>
     [JsonProperty("groups")]
-    public ReadOnlyCollection<Group> Groups { get; set; }
+    public ReadOnlyCollection<Group>? Groups { get; set; }
 }

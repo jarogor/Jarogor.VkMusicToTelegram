@@ -1,6 +1,6 @@
 ﻿using Jarogor.VkMusicToTelegram.Dto;
 
-namespace Jarogor.VkMusicToTelegram.PostHandlers.Handlers;
+namespace Jarogor.VkMusicToTelegram.Entry.Handlers;
 
 /// <summary>
 ///     - первая строка это теги,
@@ -16,15 +16,15 @@ public sealed class AsylumForesters : IHandler {
     public Record GetPreparedTitle(Post post) {
         var playlistsNames = post
             .Attachments
-            .Where(it => it.Type == typeof(Link))
+            ?.Where(it => it.Type == typeof(Link))
             .Select(it => it.Instance)
             .Cast<Link>()
             .Where(it => it.IsAudioPlaylist)
             .Select(it => it.Title)
             .ToList();
 
-        return playlistsNames.Count <= 0
+        return playlistsNames?.Count <= 0
             ? new NullRecord()
-            : new Record(string.Join(",", playlistsNames), true);
+            : new Record(string.Join(",", playlistsNames ?? []), true);
     }
 }

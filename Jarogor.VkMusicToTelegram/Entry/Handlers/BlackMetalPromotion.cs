@@ -1,6 +1,6 @@
 ﻿using Jarogor.VkMusicToTelegram.Dto;
 
-namespace Jarogor.VkMusicToTelegram.PostHandlers.Handlers;
+namespace Jarogor.VkMusicToTelegram.Entry.Handlers;
 
 /// <summary>
 ///     - первая строка это название `группа - альбом (описание)`

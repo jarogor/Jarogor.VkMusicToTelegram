@@ -91,11 +91,11 @@ public sealed class LastJob(ILogger<LastJob> logger, IOptions<Options> options) 
 
         var posts = _vkApiClient
             .Call<CustomWall>("wall.get", vkParameters, true, Constants.CustomAttachmentJsonConverter)
-            .WallPosts;
+            ?.WallPosts;
 
-        logger.LogInformation("{0}: domain: {1}, name: {2}, count: {3}", nameof(Run), group.Domain, group.Name, posts.Count);
+        logger.LogInformation("{0}: domain: {1}, name: {2}, count: {3}", nameof(Run), group.Domain, group.Name, posts?.Count ?? 0);
 
-        return posts;
+        return posts ?? new ReadOnlyCollection<Post>([]);
     }
 
     private static void HandlePost(Post post, Group group, List<string> history, List<string> newHistory, Dictionary<string, List<Item>> newContent) {
@@ -115,10 +115,10 @@ public sealed class LastJob(ILogger<LastJob> logger, IOptions<Options> options) 
         // Посты с плейлистами
         var attachments = post
             .Attachments
-            .Where(it => it.Type == typeof(Dto_Link))
+            ?.Where(it => it.Type == typeof(Dto_Link))
             .ToList();
 
-        if (attachments.Count == 0) {
+        if (attachments?.Count == 0) {
             return;
         }
 

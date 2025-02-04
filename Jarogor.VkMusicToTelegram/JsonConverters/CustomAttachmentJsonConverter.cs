@@ -13,8 +13,8 @@ public class CustomAttachmentJsonConverter : JsonConverter {
 
     /// <inheritdoc />
     /// <exception cref="T:System.NotImplementedException"> </exception>
-    public override void WriteJson(JsonWriter writer, object value, JsonSerializer serializer) {
-        var attachments = (IEnumerable<Attachment>)value;
+    public override void WriteJson(JsonWriter writer, object? value, JsonSerializer serializer) {
+        var attachments = (IEnumerable<Attachment>)value!;
 
         var jArray = new JArray();
 
@@ -34,8 +34,8 @@ public class CustomAttachmentJsonConverter : JsonConverter {
 
     /// <inheritdoc />
     /// <exception cref="T:System.TypeAccessException"> </exception>
-    public override object ReadJson(JsonReader reader, Type objectType, object existingValue, JsonSerializer serializer) {
-        if (!objectType.IsGenericType) {
+    public override object? ReadJson(JsonReader reader, Type objectType, object? existingValue, JsonSerializer serializer) {
+        if (objectType is null || !objectType.IsGenericType) {
             throw new TypeAccessException();
         }
 
@@ -48,9 +48,10 @@ public class CustomAttachmentJsonConverter : JsonConverter {
         }
 
         var keyType = objectType.GetGenericArguments()[0];
-
         var constructedListType = typeof(List<>).MakeGenericType(keyType);
-        var list = (IList)Activator.CreateInstance(constructedListType);
+        if (Activator.CreateInstance(constructedListType) is not IList list) {
+            return null;
+        }
 
         var obj = JArray.Load(reader);
         foreach (var item in obj) {

@@ -1,6 +1,6 @@
 [Unit]
 Description="VkMusic to Telegram publication service"
-ConditionPathExists=/opt/vktotg/VkMusicToTelegram
+ConditionPathExists=/opt/vktotg/Jarogor.VkMusicToTelegram
 After=network.target
 
 [Service]
@@ -11,7 +11,7 @@ StandardInput=null
 Restart=on-failure
 WorkingDirectory=/opt/vktotg/
 EnvironmentFile=/opt/vktotg/.env
-ExecStart=/opt/vktotg/VkMusicToTelegram
+ExecStart=/opt/vktotg/Jarogor.VkMusicToTelegram
 
 [Install]
 WantedBy=multi-user.target

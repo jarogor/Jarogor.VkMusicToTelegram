@@ -1,5 +1,6 @@
 ﻿using Jarogor.VkMusicToTelegram;
 using Jarogor.VkMusicToTelegram.Jobs;
+using Jarogor.VkMusicToTelegram.Top;
 using Quartz;
 
 const string vkToken = "VK_TOKEN";
@@ -40,21 +41,23 @@ await Console.Out.WriteLineAsync(
 );
 
 if (vkApiAccessToken is null) {
-    throw new Exception($"[{vkToken}] environment variable not found.");
+    throw new ArgumentException($"[{vkToken}] environment variable not found.");
 }
 
 if (tgBotId is null) {
-    throw new Exception($"[{botId}] environment variable not found.");
+    throw new ArgumentException($"[{botId}] environment variable not found.");
 }
 
 if (tgChannelId is null) {
-    throw new Exception($"[{channelId}] environment variable not found.");
+    throw new ArgumentException($"[{channelId}] environment variable not found.");
 }
-
 
 var host = Host
     .CreateDefaultBuilder(args)
-    .ConfigureServices((context, services) => {
+    .ConfigureServices((_, services) => {
+        services.AddTransient<TopWeekJobService>();
+        services.AddTransient<TopMonthJobService>();
+
         services.AddOptions<Options>().Configure(o => {
             o.VkApiAccessToken = vkApiAccessToken;
             o.TgBotId = tgBotId;

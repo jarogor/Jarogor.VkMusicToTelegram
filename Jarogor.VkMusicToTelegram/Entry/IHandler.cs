@@ -1,6 +1,6 @@
 ﻿using Jarogor.VkMusicToTelegram.Dto;
 
-namespace Jarogor.VkMusicToTelegram.PostHandlers;
+namespace Jarogor.VkMusicToTelegram.Entry;
 
 public interface IHandler {
     public string Domain { get; }
