@@ -1,11 +1,11 @@
 ﻿using System.Text.RegularExpressions;
 
-namespace Jarogor.VkMusicToTelegram.Entry;
+namespace Jarogor.VkMusicToTelegram.Vk.Posts;
 
 public static class Extensions {
     private static readonly Regex Regex = new(@"^\[[^|]+?\|([^|]+?)\](\s{1,3}[-—–~]{1,3}\s{1,3}[\w\W]+?[\(\[\{]{1}\d+?\w*?[\)\]\}]{1})[\w\W]*?$", RegexOptions.Singleline, TimeSpan.FromMilliseconds(50));
 
-    public static (bool success, string artistName) ParseArtistName(this IHandler _, string data) {
+    public static (bool success, string artistName) ParseArtistName(this IParsing _, string data) {
         try {
             if (!data.Contains('|')) {
                 return (false, data);

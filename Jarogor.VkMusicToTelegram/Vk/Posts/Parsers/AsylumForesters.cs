@@ -1,6 +1,6 @@
-﻿using Jarogor.VkMusicToTelegram.Dto;
+﻿using Jarogor.VkMusicToTelegram.Vk.Api;
 
-namespace Jarogor.VkMusicToTelegram.Entry.Handlers;
+namespace Jarogor.VkMusicToTelegram.Vk.Posts.Parsers;
 
 /// <summary>
 ///     - первая строка это теги,
@@ -9,7 +9,7 @@ namespace Jarogor.VkMusicToTelegram.Entry.Handlers;
 ///     - название можно брать из плейлиста, у них оно более-менее единообразно оформленное с правильным написанием `группа
 ///     - альбом (год)`
 /// </summary>
-public sealed class AsylumForesters : IHandler {
+public sealed class AsylumForesters : IParsing {
     public string Domain => "asylumforesters_vk";
     public string Name => "Убежище Лесников";
 

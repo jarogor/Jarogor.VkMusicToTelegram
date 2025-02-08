@@ -1,9 +1,9 @@
 ﻿using System.Text.RegularExpressions;
-using Jarogor.VkMusicToTelegram.Dto;
+using Jarogor.VkMusicToTelegram.Vk.Api;
 
-namespace Jarogor.VkMusicToTelegram.Entry;
+namespace Jarogor.VkMusicToTelegram.Vk.Posts;
 
-public abstract class HandlerBase : IHandler {
+public abstract class ParsingBase : IParsing {
     private static readonly Regex Regex = new(@"\[.+?|.+?\]", RegexOptions.Singleline, TimeSpan.FromMilliseconds(50));
 
     public abstract string Domain { get; }

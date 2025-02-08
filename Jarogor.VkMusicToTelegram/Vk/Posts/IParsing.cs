@@ -1,8 +1,8 @@
-﻿using Jarogor.VkMusicToTelegram.Dto;
+﻿using Jarogor.VkMusicToTelegram.Vk.Api;
 
-namespace Jarogor.VkMusicToTelegram.Entry;
+namespace Jarogor.VkMusicToTelegram.Vk.Posts;
 
-public interface IHandler {
+public interface IParsing {
     public string Domain { get; }
     public string Name { get; }
     public Record GetPreparedTitle(Post post);

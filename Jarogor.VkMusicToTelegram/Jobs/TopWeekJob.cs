@@ -1,4 +1,4 @@
-﻿using Jarogor.VkMusicToTelegram.Top;
+﻿using Jarogor.VkMusicToTelegram.Tg;
 using Quartz;
 
 namespace Jarogor.VkMusicToTelegram.Jobs;

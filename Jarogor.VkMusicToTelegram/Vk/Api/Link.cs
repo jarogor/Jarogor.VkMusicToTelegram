@@ -1,6 +1,6 @@
 ﻿using Newtonsoft.Json;
 
-namespace Jarogor.VkMusicToTelegram.Dto;
+namespace Jarogor.VkMusicToTelegram.Vk.Api;
 
 [Serializable]
 public class Link : VkNet.Model.Link {

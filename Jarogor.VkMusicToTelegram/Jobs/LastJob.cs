@@ -1,6 +1,6 @@
 ﻿using System.Collections.ObjectModel;
 using System.Text;
-using Jarogor.VkMusicToTelegram.Dto;
+using Jarogor.VkMusicToTelegram.Vk.Api;
 using Microsoft.Extensions.Options;
 using Quartz;
 using Telegram.Bot;
@@ -9,9 +9,9 @@ using Telegram.Bot.Types.Enums;
 using VkNet;
 using VkNet.Model;
 using VkNet.Utils;
-using Dto_Link = Jarogor.VkMusicToTelegram.Dto.Link;
+using Dto_Link = Jarogor.VkMusicToTelegram.Vk.Api.Link;
 using File = System.IO.File;
-using Post = Jarogor.VkMusicToTelegram.Dto.Post;
+using Post = Jarogor.VkMusicToTelegram.Vk.Api.Post;
 
 namespace Jarogor.VkMusicToTelegram.Jobs;
 
@@ -123,7 +123,7 @@ public sealed class LastJob(ILogger<LastJob> logger, IOptions<Options> options) 
         }
 
         // После обработки названия
-        var text = group.Handler.GetPreparedTitle(post);
+        var text = group.Parsing.GetPreparedTitle(post);
         if (!text.IsExists) {
             return;
         }

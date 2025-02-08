@@ -1,13 +1,13 @@
-﻿using Jarogor.VkMusicToTelegram.Dto;
+﻿using Jarogor.VkMusicToTelegram.Vk.Api;
 
-namespace Jarogor.VkMusicToTelegram.Entry.Handlers;
+namespace Jarogor.VkMusicToTelegram.Vk.Posts.Parsers;
 
 /// <summary>
 ///     - первая строка это название `группа - альбом (описание)`
 ///     - последняя строка это теги, но первый служебный, а остальные какие-то наркоманские, быть может отказаться от тегов
 ///     тут
 /// </summary>
-public sealed class BlackMetalPromotion : IHandler {
+public sealed class BlackMetalPromotion : IParsing {
     public string Domain => "black_metal_promotion";
     public string Name => "Black Metal Promotion";
 

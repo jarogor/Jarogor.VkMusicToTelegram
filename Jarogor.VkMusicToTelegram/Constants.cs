@@ -1,6 +1,6 @@
-﻿using Jarogor.VkMusicToTelegram.Entry;
-using Jarogor.VkMusicToTelegram.Entry.Handlers;
-using Jarogor.VkMusicToTelegram.JsonConverters;
+﻿using Jarogor.VkMusicToTelegram.JsonConverters;
+using Jarogor.VkMusicToTelegram.Vk.Posts;
+using Jarogor.VkMusicToTelegram.Vk.Posts.Parsers;
 
 namespace Jarogor.VkMusicToTelegram;
 
@@ -18,4 +18,4 @@ public static class Constants {
     ];
 }
 
-public record Group(string Domain, string Name, IHandler Handler, TopCount Top);
+public record Group(string Domain, string Name, IParsing Parsing, TopCount Top);

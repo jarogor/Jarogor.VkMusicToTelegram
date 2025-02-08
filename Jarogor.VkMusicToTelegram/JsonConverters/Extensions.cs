@@ -1,7 +1,7 @@
 ﻿using Newtonsoft.Json.Linq;
 using VkNet.Model;
 using VkNet.Utils;
-using Link = Jarogor.VkMusicToTelegram.Dto.Link;
+using Link = Jarogor.VkMusicToTelegram.Vk.Api.Link;
 
 namespace Jarogor.VkMusicToTelegram.JsonConverters;
 

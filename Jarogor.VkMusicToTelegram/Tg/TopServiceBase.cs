@@ -1,8 +1,8 @@
 ﻿using System.Collections.ObjectModel;
 using System.Text;
-using Jarogor.VkMusicToTelegram.Dto;
-using Jarogor.VkMusicToTelegram.Entry;
 using Jarogor.VkMusicToTelegram.Jobs;
+using Jarogor.VkMusicToTelegram.Vk.Api;
+using Jarogor.VkMusicToTelegram.Vk.Posts;
 using Microsoft.Extensions.Options;
 using Telegram.Bot;
 using Telegram.Bot.Types;
@@ -10,10 +10,10 @@ using Telegram.Bot.Types.Enums;
 using VkNet;
 using VkNet.Model;
 using VkNet.Utils;
-using Link = Jarogor.VkMusicToTelegram.Dto.Link;
-using Post = Jarogor.VkMusicToTelegram.Dto.Post;
+using Link = Jarogor.VkMusicToTelegram.Vk.Api.Link;
+using Post = Jarogor.VkMusicToTelegram.Vk.Api.Post;
 
-namespace Jarogor.VkMusicToTelegram.Top;
+namespace Jarogor.VkMusicToTelegram.Tg;
 
 public abstract class TopServiceBase(ILogger<TopServiceBase> logger, IOptions<Options> options) {
     private readonly TelegramBotClient _tgApiClient = new(options.Value.TgBotId);
@@ -34,7 +34,7 @@ public abstract class TopServiceBase(ILogger<TopServiceBase> logger, IOptions<Op
         await Run(cancellationToken);
     }
 
-    protected void Handle(string domain, string groupName, IHandler handler, int count) {
+    protected void Handle(string domain, string groupName, IParsing parsing, int count) {
         logger.LogInformation("{0}: domain: {1}, name: {2}, count: {3}", nameof(Handle), domain, groupName, count);
 
         foreach (var post in GetPosts(domain, count)) {
@@ -42,7 +42,7 @@ public abstract class TopServiceBase(ILogger<TopServiceBase> logger, IOptions<Op
                 continue;
             }
 
-            var item = handler.GetPreparedTitle(post);
+            var item = parsing.GetPreparedTitle(post);
             if (!item.IsExists) {
                 continue;
             }

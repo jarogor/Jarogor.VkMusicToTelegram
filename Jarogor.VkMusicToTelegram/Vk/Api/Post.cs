@@ -3,7 +3,7 @@ using Jarogor.VkMusicToTelegram.JsonConverters;
 using Newtonsoft.Json;
 using VkNet.Model;
 
-namespace Jarogor.VkMusicToTelegram.Dto;
+namespace Jarogor.VkMusicToTelegram.Vk.Api;
 
 [Serializable]
 public class Post : VkNet.Model.Post {
