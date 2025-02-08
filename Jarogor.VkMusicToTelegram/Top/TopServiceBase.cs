@@ -116,7 +116,7 @@ public abstract class TopServiceBase(ILogger<TopServiceBase> logger, IOptions<Op
 
     private string CreateMessage(string topName) {
         var message = new StringBuilder();
-        message.AppendLine($"**ТОП {_tgTopCount} ({topName})**");
+        message.AppendLine($"<b>ТОП {_tgTopCount} ({topName})</b>");
 
         foreach (var pair in _topContent) {
             message.AppendLine();
