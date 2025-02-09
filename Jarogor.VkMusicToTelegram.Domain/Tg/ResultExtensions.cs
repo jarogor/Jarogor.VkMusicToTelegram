@@ -30,7 +30,7 @@ public static class ResultExtensions {
         return message.ToString();
     }
 
-    public static string CreateLastMessage(this Dictionary<string, List<Result>> items) {
+    public static string CreateMessage(this Dictionary<string, List<Result>> items) {
         var message = new StringBuilder();
 
         foreach (var pair in items.Where(pair => pair.Value.Count > 0)) {

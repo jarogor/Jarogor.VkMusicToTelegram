@@ -26,29 +26,16 @@ public sealed class Adapter(string tgChannelId, string tgBotId) : IAdapter {
 
     private async Task Send(Dictionary<string, List<Result>> items, CancellationToken stoppingToken) {
         try {
-            await SendMessage(items.CreateLastMessage(), stoppingToken);
+            await SendMessage(items.CreateMessage(), stoppingToken);
         } catch (RequestException) {
-            //  Telegram Bot API error 400: Bad Request: message is too long
-            var limit = items.Values.Sum(it => it.Count) / 2;
-            var (first, second) = Split(items, limit);
+            // Telegram Bot API error 400: Bad Request: message is too long
+            // Сначала нужно разделить общее количество на количество списков,
+            // чтобы получить среднее количество элементов списка.
+            // Затем ещё пополам, чтобы его разбить на две части для разной отправки.
+            var limit = items.Sum(it => it.Value.Count) / items.Count / 2;
+            var (first, second) = items.Split(limit);
             await Send(first, stoppingToken);
             await Send(second, stoppingToken);
         }
-    }
-
-    private static (Dictionary<string, List<Result>> first, Dictionary<string, List<Result>> second) Split(Dictionary<string, List<Result>> items, int limit) {
-        var first = new Dictionary<string, List<Result>>();
-        var second = new Dictionary<string, List<Result>>();
-
-        foreach (var (key, list) in items) {
-            first[key] = list.Take(limit).ToList();
-
-            var results = list.Skip(limit).ToList();
-            if (results.Count > 0) {
-                second[key] = results;
-            }
-        }
-
-        return (first, second);
     }
 }
