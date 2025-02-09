@@ -1,70 +1,44 @@
 ﻿using Jarogor.VkMusicToTelegram;
+using Jarogor.VkMusicToTelegram.Domain;
+using Jarogor.VkMusicToTelegram.Domain.Tg.Last;
+using Jarogor.VkMusicToTelegram.Domain.Tg.Top;
 using Jarogor.VkMusicToTelegram.Jobs;
-using Jarogor.VkMusicToTelegram.Tg;
 using Quartz;
+using IVkAdapter = Jarogor.VkMusicToTelegram.Domain.Vk.Api.IAdapter;
+using VkAdapter = Jarogor.VkMusicToTelegram.Infrastructure.Vk.Adapter;
+using ITgAdapter = Jarogor.VkMusicToTelegram.Domain.Tg.IAdapter;
+using TgAdapter = Jarogor.VkMusicToTelegram.Infrastructure.Tg.Adapter;
 
-const string vkToken = "VK_TOKEN";
-const string botId = "TG_BOT_ID";
-const string channelId = "TG_CHANNEL_ID";
-const string cronLast = "JOB_CRON_LAST";
-const string cronTopWeek = "JOB_CRON_TOP_WEEK";
-const string cronTopMonth = "JOB_CRON_TOP_MONTH";
-const string lastCount = "VK_LAST_COUNT";
-const string topCount = "TG_TOP_COUNT";
+var env = Env.Build();
 
-var vkApiAccessToken = Environment.GetEnvironmentVariable(vkToken);
-var tgBotId = Environment.GetEnvironmentVariable(botId);
-var tgChannelId = Environment.GetEnvironmentVariable(channelId);
-
-var jobCronLast = Environment.GetEnvironmentVariable(cronLast) ?? "0 0 */4 * * ?";
-var jobCronTopWeek = Environment.GetEnvironmentVariable(cronTopWeek) ?? "0 0 18 ? * 6";
-var jobCronTopMonth = Environment.GetEnvironmentVariable(cronTopMonth) ?? "0 0 20 1 * ?";
-
-var vkLastCount = Environment.GetEnvironmentVariable(lastCount) ?? "20";
-var tgTopCount = Environment.GetEnvironmentVariable(topCount) ?? "5";
-
-await Console.Out.WriteLineAsync(
-    $"""
-     ----------------------------------------------
-     {vkToken} is set: {!string.IsNullOrWhiteSpace(vkApiAccessToken)}
-     {botId}:          {tgBotId}
-     {channelId}:      {tgChannelId}
-
-     {cronLast}:     "{jobCronLast}"
-     {cronTopWeek}:  "{jobCronTopWeek}"
-     {cronTopMonth}: "{jobCronTopMonth}"
-
-     {lastCount}: {vkLastCount}
-     {topCount}:  {tgTopCount}
-     ----------------------------------------------
-     """
-);
-
-if (vkApiAccessToken is null) {
-    throw new ArgumentException($"[{vkToken}] environment variable not found.");
-}
-
-if (tgBotId is null) {
-    throw new ArgumentException($"[{botId}] environment variable not found.");
-}
-
-if (tgChannelId is null) {
-    throw new ArgumentException($"[{channelId}] environment variable not found.");
-}
+await env.PrintHelpAsync();
 
 var host = Host
     .CreateDefaultBuilder(args)
     .ConfigureServices((_, services) => {
-        services.AddTransient<TopWeekJobService>();
-        services.AddTransient<TopMonthJobService>();
+        services.AddTransient<IVkAdapter, VkAdapter>();
+        services.AddTransient<ITgAdapter, TgAdapter>(_ => new TgAdapter(env.TgChannelId, env.TgBotId));
 
-        services.AddOptions<Options>().Configure(o => {
-            o.VkApiAccessToken = vkApiAccessToken;
-            o.TgBotId = tgBotId;
-            o.TgChannelId = tgChannelId;
-            o.VkLastCount = int.Parse(vkLastCount);
-            o.TgTopCount = int.Parse(tgTopCount);
+        services.AddTransient<LastOptions>(it => new LastOptions {
+            VkApiAccessToken = env.VkApiAccessToken,
+            VkPostsCount = int.Parse(env.VkLastCount),
+            TgAdapter = it.GetRequiredService<ITgAdapter>(),
+            VkAdapter = it.GetRequiredService<IVkAdapter>(),
+            Groups = Constants.VkGroupsSettings,
         });
+
+        services.AddTransient<TopOptions>(it => new TopOptions {
+            VkApiAccessToken = env.VkApiAccessToken,
+            VkPostsLimit = int.Parse(env.VkPostsLimit),
+            TgTopCount = int.Parse(env.TgTopCount),
+            TgAdapter = it.GetRequiredService<ITgAdapter>(),
+            VkAdapter = it.GetRequiredService<IVkAdapter>(),
+            Groups = Constants.VkGroupsSettings,
+        });
+
+        services.AddTransient<LastService>();
+        services.AddTransient<TopWeekService>();
+        services.AddTransient<TopMonthService>();
 
         services
             .AddQuartz(q => {
@@ -88,9 +62,9 @@ var host = Host
                 //   | | | | | | |
                 //   * * * * * ?
 
-                q.ScheduleJob<LastJob>(trigger => trigger.WithCronSchedule(jobCronLast));
-                q.ScheduleJob<TopWeekJob>(trigger => trigger.WithCronSchedule(jobCronTopWeek));
-                q.ScheduleJob<TopMonthJob>(trigger => trigger.WithCronSchedule(jobCronTopMonth));
+                q.ScheduleJob<LastJob>(trigger => trigger.WithCronSchedule(env.JobCronLast));
+                q.ScheduleJob<TopWeekJob>(trigger => trigger.WithCronSchedule(env.JobCronTopWeek));
+                q.ScheduleJob<TopMonthJob>(trigger => trigger.WithCronSchedule(env.JobCronTopMonth));
             });
 
         // Quartz.Extensions.Hosting hosting
