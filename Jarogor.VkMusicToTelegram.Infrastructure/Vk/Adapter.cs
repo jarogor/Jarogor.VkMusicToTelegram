@@ -10,10 +10,10 @@ using Post = Jarogor.VkMusicToTelegram.Domain.Vk.Api.Post;
 
 namespace Jarogor.VkMusicToTelegram.Infrastructure.Vk;
 
-public sealed class Adapter : IAdapter {
+public sealed class Adapter(string accessToken) : IAdapter {
     private readonly VkApi _vkApiClient = new();
 
-    public async Task AuthorizeAsync(string accessToken, CancellationToken cancellationToken) {
+    public async Task AuthorizeAsync(CancellationToken cancellationToken) {
         await _vkApiClient.AuthorizeAsync(new ApiAuthParams { AccessToken = accessToken }, cancellationToken);
     }
 

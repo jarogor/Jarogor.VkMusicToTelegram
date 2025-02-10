@@ -1,7 +1,6 @@
 ﻿namespace Jarogor.VkMusicToTelegram.Domain.Tg.Top;
 
 public sealed class TopOptions {
-    public string VkApiAccessToken { get; init; } = null!;
     public int TgTopCount { get; init; }
     public int VkPostsLimit { get; init; }
     public Vk.Api.IAdapter VkAdapter { get; init; } = null!;

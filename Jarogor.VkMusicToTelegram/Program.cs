@@ -16,11 +16,10 @@ await env.PrintHelpAsync();
 var host = Host
     .CreateDefaultBuilder(args)
     .ConfigureServices((_, services) => {
-        services.AddTransient<IVkAdapter, VkAdapter>();
+        services.AddTransient<IVkAdapter, VkAdapter>(_ => new VkAdapter(env.VkApiAccessToken));
         services.AddTransient<ITgAdapter, TgAdapter>(_ => new TgAdapter(env.TgChannelId, env.TgBotId));
 
         services.AddTransient<LastOptions>(it => new LastOptions {
-            VkApiAccessToken = env.VkApiAccessToken,
             VkPostsCount = int.Parse(env.VkLastCount),
             TgAdapter = it.GetRequiredService<ITgAdapter>(),
             VkAdapter = it.GetRequiredService<IVkAdapter>(),
@@ -28,7 +27,6 @@ var host = Host
         });
 
         services.AddTransient<TopOptions>(it => new TopOptions {
-            VkApiAccessToken = env.VkApiAccessToken,
             VkPostsLimit = int.Parse(env.VkPostsLimit),
             TgTopCount = int.Parse(env.TgTopCount),
             TgAdapter = it.GetRequiredService<ITgAdapter>(),

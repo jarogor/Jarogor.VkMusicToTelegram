@@ -5,7 +5,6 @@ using File = System.IO.File;
 namespace Jarogor.VkMusicToTelegram.Domain.Tg.Last;
 
 public sealed class LastService(ILogger<LastService> logger, LastOptions topOptions) {
-    private readonly string _vkApiAccessToken = topOptions.VkApiAccessToken;
     private readonly int _vkLastCount = topOptions.VkPostsCount;
     private readonly Vk.Api.IAdapter _vkAdapter = topOptions.VkAdapter;
     private readonly IAdapter _tgAdapter = topOptions.TgAdapter;
@@ -14,7 +13,7 @@ public sealed class LastService(ILogger<LastService> logger, LastOptions topOpti
     private static string HistoryListFilePath => Path.Join(AppDomain.CurrentDomain.BaseDirectory, $"history-list-{DateTime.Now.Month}.txt");
 
     public async Task RunAsync(CancellationToken stoppingToken) {
-        await _vkAdapter.AuthorizeAsync(_vkApiAccessToken, stoppingToken);
+        await _vkAdapter.AuthorizeAsync(stoppingToken);
 
         var newContent = _vkGroups.ToDictionary(group => group.Name, _ => new List<Result>());
         var history = await GetHistory(stoppingToken);

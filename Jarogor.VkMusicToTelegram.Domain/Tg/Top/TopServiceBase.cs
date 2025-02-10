@@ -5,7 +5,6 @@ using Microsoft.Extensions.Logging;
 namespace Jarogor.VkMusicToTelegram.Domain.Tg.Top;
 
 public abstract class TopServiceBase(ILogger<TopServiceBase> logger, TopOptions topOptions) {
-    private readonly string _vkApiAccessToken = topOptions.VkApiAccessToken;
     private readonly int _tgTopCount = topOptions.TgTopCount;
     private readonly int _vkPostsLimit = topOptions.VkPostsLimit;
     private readonly Vk.Api.IAdapter _vkAdapter = topOptions.VkAdapter;
@@ -16,7 +15,7 @@ public abstract class TopServiceBase(ILogger<TopServiceBase> logger, TopOptions 
     protected abstract Task RunAsync(CancellationToken stoppingToken);
 
     public async Task ExecuteAsync(CancellationToken cancellationToken) {
-        await _vkAdapter.AuthorizeAsync(_vkApiAccessToken, cancellationToken);
+        await _vkAdapter.AuthorizeAsync(cancellationToken);
         await RunAsync(cancellationToken);
     }
 

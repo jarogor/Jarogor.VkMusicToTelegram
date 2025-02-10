@@ -1,7 +1,6 @@
 ﻿namespace Jarogor.VkMusicToTelegram.Domain.Tg.Last;
 
 public sealed class LastOptions {
-    public string VkApiAccessToken { get; init; } = null!;
     public int VkPostsCount { get; init; }
     public Vk.Api.IAdapter VkAdapter { get; init; } = null!;
     public IAdapter TgAdapter { get; init; } = null!;
