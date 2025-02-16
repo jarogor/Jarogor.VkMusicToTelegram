@@ -17,8 +17,8 @@
     </ItemGroup>
 
     <ItemGroup>
-        <ProjectReference Include="$(SolutionDir)\Jarogor.VkMusicToTelegram.Domain\Jarogor.VkMusicToTelegram.Domain.csproj"/>
-        <ProjectReference Include="$(SolutionDir)\Jarogor.VkMusicToTelegram.Infrastructure\Jarogor.VkMusicToTelegram.Infrastructure.csproj"/>
+        <ProjectReference Include="..\Jarogor.VkMusicToTelegram.Domain\Jarogor.VkMusicToTelegram.Domain.csproj"/>
+        <ProjectReference Include="..\Jarogor.VkMusicToTelegram.Infrastructure\Jarogor.VkMusicToTelegram.Infrastructure.csproj"/>
     </ItemGroup>
 
 </Project>

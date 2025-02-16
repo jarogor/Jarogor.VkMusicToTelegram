@@ -17,6 +17,9 @@ await env.PrintHelpAsync();
 
 var host = Host
     .CreateDefaultBuilder(args)
+    .ConfigureAppConfiguration(config => {
+        config.AddJsonFile("appsettings.json", optional: false, reloadOnChange: true);
+    })
     .ConfigureServices((_, services) => {
         services.AddTransient<IVkAdapter, VkAdapter>(_ => new VkAdapter(env.VkApiAccessToken));
         services.AddTransient<ITgAdapter, TgAdapter>(_ => new TgAdapter(env.TgChannelId, env.TgBotId));
