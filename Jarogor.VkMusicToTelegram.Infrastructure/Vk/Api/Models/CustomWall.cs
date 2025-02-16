@@ -2,7 +2,7 @@
 using Newtonsoft.Json;
 using VkNet.Model;
 
-namespace Jarogor.VkMusicToTelegram.Infrastructure.Vk.Models;
+namespace Jarogor.VkMusicToTelegram.Infrastructure.Vk.Api.Models;
 
 [Serializable]
 public sealed class CustomWall {

@@ -1,9 +1,9 @@
 ﻿using System.Collections.ObjectModel;
-using Jarogor.VkMusicToTelegram.Infrastructure.Vk.Models.JsonConverters;
+using Jarogor.VkMusicToTelegram.Infrastructure.Vk.Api.Models.JsonConverters;
 using Newtonsoft.Json;
 using VkNet.Model;
 
-namespace Jarogor.VkMusicToTelegram.Infrastructure.Vk.Models;
+namespace Jarogor.VkMusicToTelegram.Infrastructure.Vk.Api.Models;
 
 [Serializable]
 public class Post : VkNet.Model.Post {

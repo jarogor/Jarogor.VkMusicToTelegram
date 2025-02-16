@@ -2,10 +2,12 @@
 using Jarogor.VkMusicToTelegram.Domain;
 using Jarogor.VkMusicToTelegram.Domain.Tg.Last;
 using Jarogor.VkMusicToTelegram.Domain.Tg.Top;
+using Jarogor.VkMusicToTelegram.Infrastructure.Vk.Db;
 using Jarogor.VkMusicToTelegram.Jobs;
+using Microsoft.EntityFrameworkCore;
 using Quartz;
 using IVkAdapter = Jarogor.VkMusicToTelegram.Domain.Vk.Api.IAdapter;
-using VkAdapter = Jarogor.VkMusicToTelegram.Infrastructure.Vk.Adapter;
+using VkAdapter = Jarogor.VkMusicToTelegram.Infrastructure.Vk.Api.Adapter;
 using ITgAdapter = Jarogor.VkMusicToTelegram.Domain.Tg.IAdapter;
 using TgAdapter = Jarogor.VkMusicToTelegram.Infrastructure.Tg.Adapter;
 
@@ -32,6 +34,10 @@ var host = Host
             TgAdapter = it.GetRequiredService<ITgAdapter>(),
             VkAdapter = it.GetRequiredService<IVkAdapter>(),
             Groups = Constants.VkGroupsSettings,
+        });
+
+        services.AddDbContext<VkDbContext>((p, opt) => {
+            opt.UseNpgsql(_.Configuration.GetConnectionString("DefaultConnection"));
         });
 
         services.AddTransient<LastService>();

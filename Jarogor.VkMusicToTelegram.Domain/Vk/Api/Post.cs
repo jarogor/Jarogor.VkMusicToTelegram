@@ -11,7 +11,7 @@ public sealed class Post {
     /// <summary>
     /// Время публикации записи.
     /// </summary>
-    public DateTime? Date { get; set; }
+    public DateTime Date { get; set; }
 
     /// <summary>
     /// Если запись закрепленная - вернет <c>true</c>
@@ -21,12 +21,12 @@ public sealed class Post {
     /// <summary>
     /// Идентификатор вложенеия.
     /// </summary>
-    public long? Id { get; set; }
+    public long Id { get; set; }
 
     /// <summary>
     /// Идентификатор владельца вложения.
     /// </summary>
-    public long? OwnerId { get; set; }
+    public long OwnerId { get; set; }
 
     /// <summary>
     /// Информация о вложениях записи (фотографии ссылки и т.п.).
@@ -36,10 +36,15 @@ public sealed class Post {
     /// <summary>
     /// Информация о лайках к записи.
     /// </summary>
-    public int? Likes { get; set; }
+    public int Likes { get; set; }
 
     /// <summary>
     /// Информация о просмотрах записи.
     /// </summary>
-    public int? Views { get; set; }
+    public int Views { get; set; }
+
+    /// <summary>
+    /// Информация о репостах записи.
+    /// </summary>
+    public int Reposts { get; set; }
 }

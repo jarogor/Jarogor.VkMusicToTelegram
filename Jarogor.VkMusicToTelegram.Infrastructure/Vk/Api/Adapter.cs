@@ -1,14 +1,14 @@
 ﻿using System.Collections.ObjectModel;
 using Jarogor.VkMusicToTelegram.Domain.Vk.Api;
-using Jarogor.VkMusicToTelegram.Infrastructure.Vk.Models;
-using Jarogor.VkMusicToTelegram.Infrastructure.Vk.Models.JsonConverters;
+using Jarogor.VkMusicToTelegram.Infrastructure.Vk.Api.Models;
+using Jarogor.VkMusicToTelegram.Infrastructure.Vk.Api.Models.JsonConverters;
 using VkNet;
 using VkNet.Model;
 using VkNet.Utils;
-using Link = Jarogor.VkMusicToTelegram.Infrastructure.Vk.Models.Link;
+using Link = Jarogor.VkMusicToTelegram.Infrastructure.Vk.Api.Models.Link;
 using Post = Jarogor.VkMusicToTelegram.Domain.Vk.Api.Post;
 
-namespace Jarogor.VkMusicToTelegram.Infrastructure.Vk;
+namespace Jarogor.VkMusicToTelegram.Infrastructure.Vk.Api;
 
 public sealed class Adapter(string accessToken) : IAdapter {
     private readonly VkApi _vkApiClient = new();
@@ -40,12 +40,13 @@ public sealed class Adapter(string accessToken) : IAdapter {
 
     private static Post Map(Models.Post it) {
         return new Post {
-            Id = it.Id,
-            Date = it.Date,
+            Id = it.Id!.Value,
+            Date = it.Date!.Value,
             IsPinned = it.IsPinned,
-            OwnerId = it.OwnerId,
+            OwnerId = it.OwnerId!.Value,
             Views = it.Views.Count,
             Likes = it.Likes.Count,
+            Reposts = it.Reposts.Count,
             Attachments = it.Attachments
                 ?.Where(a => a.Type == typeof(Link))
                 .Select(a => a.Instance)
