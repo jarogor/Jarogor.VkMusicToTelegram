@@ -49,10 +49,9 @@ public static partial class TextParser {
 
         var artist = GetArtists(match.Groups["artist"].Value.Trim()).ToArray();
         var album = match.Groups["album"].Value.Trim();
-        var year = int.Parse(match.Groups["year"].Value);
-        var year2 = GetYear2(match.Groups["year2"].Value, year);
+        var years = GetYears(match.Groups);
 
-        return ParseResult.Create(tags, artist, album, year, year2);
+        return ParseResult.Create(tags, artist, album, years);
     }
 
     private static string[] GetArtists(string input) {
@@ -83,11 +82,21 @@ public static partial class TextParser {
         return artists.ToArray();
     }
 
-    private static int? GetYear2(string data, int? yearBase) {
-        int? result = int.TryParse(data, out var y) ? y : null;
+    private static int[] GetYears(GroupCollection groups) {
+        var year = int.Parse(groups["year"].Value);
 
-        return result < 100
-            ? yearBase - (yearBase % 100) + result
-            : result;
+        if (!int.TryParse(groups["year2"].Value, out var year2)) {
+            return [year];
+        }
+
+        // Если двузначное, то приведение к четырёхзначному на основе первого значения.
+        // Например:
+        //  - 1111/22 — в итоге должны стать 1111 и 1122
+        //  - 1111/2222 — должны остаться как есть
+        year2 = year2 < 100
+            ? year - (year % 100) + year2
+            : year2;
+
+        return [year, year2];
     }
 }
