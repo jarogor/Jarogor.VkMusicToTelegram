@@ -2,7 +2,11 @@
 
 namespace Jarogor.VkMusicToTelegram.Domain.Vk.Posts;
 
-public static partial class PostTextParser {
+/// <warning>PARTIAL</warning>
+/// <summary>
+/// Универсальный парсинг текста поста ВК, в котором ищутся: теги, артист, альбом, год.
+/// </summary>
+public static partial class TextParser {
     [GeneratedRegex(
         pattern: @"(?<artist>.*?)\s*[—–\-~]+\s*(?<album>.*)\s*\((?<year>\d{4})\/?(?<year2>\d{2,4})?[,|\/]?.*\)",
         options: RegexOptions.Singleline | RegexOptions.IgnoreCase | RegexOptions.CultureInvariant,
@@ -24,7 +28,20 @@ public static partial class PostTextParser {
     )]
     private static partial Regex ArtistSplitRegex();
 
+    [GeneratedRegex(
+        pattern: @"(?<=#)(?![0-9])\w+",
+        options: RegexOptions.Singleline | RegexOptions.IgnoreCase | RegexOptions.CultureInvariant,
+        matchTimeoutMilliseconds: 50
+    )]
+    private static partial Regex TagsRegex();
+
     public static ParseResult Parse(string text) {
+        var tags = TagsRegex()
+            .Matches(text)
+            .SelectMany(m => m.Groups.Values)
+            .Select(m => m.Value)
+            .ToArray();
+
         var match = MainRegex().Match(text);
         if (!match.Success) {
             return ParseResult.Null();
@@ -35,7 +52,7 @@ public static partial class PostTextParser {
         var year = int.Parse(match.Groups["year"].Value);
         var year2 = GetYear2(match.Groups["year2"].Value, year);
 
-        return ParseResult.Create(artist, album, year, year2);
+        return ParseResult.Create(tags, artist, album, year, year2);
     }
 
     private static string[] GetArtists(string input) {

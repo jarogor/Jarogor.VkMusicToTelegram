@@ -2,12 +2,34 @@
 
 namespace Jarogor.VkMusicToTelegram.Tests.Infrastructure;
 
-public class PostTextParserTest {
+public class TextParserTest {
+    const string Text =
+        """
+        some text here
+        some text here
+        [club1|a'b z] vs [club2|c] — d. e & f'g: h, i-j - k?! (1111/22, m)
+        some text here
+        #some #text #here
+        some text here
+        """;
+
+    [Fact]
+    public void FullPostText_Parse_Success() {
+        var result = TextParser.Parse(Text);
+        Assert.True(result.IsSuccess);
+        Assert.Equal(["some", "text", "here"], result.Tags);
+        Assert.Equal(["a'b z", "c"], result.Artists);
+        Assert.Equal("d. e & f'g: h, i-j - k?!", result.Album);
+        Assert.Equal(1111, result.Year);
+        Assert.Equal(1122, result.Year2);
+    }
+
     [Theory]
     [MemberData(nameof(TestData))]
-    public void Parse(string value, object[] expected) {
-        var result = PostTextParser.Parse(value);
-
+    public void MusicTextLine_Parse_Success(string value, object[] expected) {
+        var result = TextParser.Parse(value);
+        Assert.True(result.IsSuccess);
+        Assert.Equal([], result.Tags);
         Assert.Equal(expected[0], result.Artists);
         Assert.Equal(expected[1], result.Album);
         Assert.Equal(expected[2], result.Year);
