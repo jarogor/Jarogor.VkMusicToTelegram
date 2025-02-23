@@ -3,7 +3,8 @@
 namespace Jarogor.VkMusicToTelegram.Domain.Vk.Api;
 
 public interface IAdapter {
-    public Task AuthorizeAsync(CancellationToken cancellationToken);
-    public ReadOnlyCollection<Post> GetPosts(string domain, int count);
-    public ReadOnlyCollection<Post> GetPosts(string domain, int count, int offset);
+    public Task AuthorizeAsync(CancellationToken cancellationToken = new());
+    public Task<Public> GetPublicAsync(string domain, CancellationToken cancellationToken = new());
+    public Task<ReadOnlyCollection<Post>> GetPostsAsync(string domain, int count, CancellationToken cancellationToken = new());
+    public Task<ReadOnlyCollection<Post>> GetPostsAsync(string domain, int count, int offset, CancellationToken cancellationToken = new());
 }
