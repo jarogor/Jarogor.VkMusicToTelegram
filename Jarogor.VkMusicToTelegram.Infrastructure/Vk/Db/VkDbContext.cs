@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore;
 namespace Jarogor.VkMusicToTelegram.Infrastructure.Vk.Db;
 
 public sealed class VkDbContext(DbContextOptions<VkDbContext> options) : DbContext(options) {
-    public DbSet<Band> Bands { get; set; }
+    public DbSet<Artist> Artists { get; set; }
     public DbSet<Album> Albums { get; set; }
     public DbSet<Post> Posts { get; set; }
     public DbSet<Public> Publics { get; set; }
@@ -16,12 +16,12 @@ public sealed class VkDbContext(DbContextOptions<VkDbContext> options) : DbConte
             .HasMany(it => it.Posts)
             .WithOne(it => it.Public);
 
-        modelBuilder.Entity<Band>()
-            .HasMany(it => it.Albums)
-            .WithOne(it => it.Band);
-
         modelBuilder.Entity<Post>()
             .HasOne(it => it.Album)
             .WithMany(it => it.Posts);
+
+        modelBuilder.Entity<Album>()
+            .HasMany(it => it.Artists)
+            .WithMany(it => it.Albums);
     }
 }

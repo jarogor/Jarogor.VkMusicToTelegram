@@ -3,8 +3,8 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Jarogor.VkMusicToTelegram.Infrastructure.Vk.Db.Entities;
 
-[Table("band")]
-public sealed class Band {
+[Table("artist")]
+public sealed class Artist {
     [Key]
     [Column("id")]
     public int Id { get; set; }
@@ -13,5 +13,5 @@ public sealed class Band {
     [MaxLength(200)]
     public required string Name { get; set; }
 
-    public ICollection<Album>? Albums { get; set; }
+    public ICollection<Album> Albums { get; set; } = new List<Album>();
 }

@@ -17,5 +17,5 @@ public sealed class Public {
     [Column("title")]
     public required string Title { get; set; }
 
-    public required ICollection<Post>? Posts { get; set; }
+    public required ICollection<Post>? Posts { get; set; } = new List<Post>();
 }

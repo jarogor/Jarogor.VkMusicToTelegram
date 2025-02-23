@@ -18,6 +18,6 @@ public sealed class Album {
     [MinLength(1900), MaxLength(2050)]
     public ushort Year { get; set; }
 
-    public Band? Band { get; set; }
-    public ICollection<Post>? Posts { get; set; }
+    public ICollection<Artist> Artists { get; set; } = new List<Artist>();
+    public ICollection<Post> Posts { get; set; } = new List<Post>();
 }
