@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore;
 namespace Jarogor.VkMusicToTelegram.Infrastructure.Vk.Db;
 
 public sealed class VkDbContext(DbContextOptions<VkDbContext> options) : DbContext(options) {
-    public DbSet<Public> Publics { get; set; }
+    public DbSet<Group> Groups { get; set; }
     public DbSet<Post> Posts { get; set; }
     public DbSet<Album> Albums { get; set; }
     public DbSet<Artist> Artists { get; set; }
@@ -15,8 +15,8 @@ public sealed class VkDbContext(DbContextOptions<VkDbContext> options) : DbConte
     protected override void OnModelCreating(ModelBuilder modelBuilder) {
         base.OnModelCreating(modelBuilder);
 
-        modelBuilder.Entity<Public>(entity => {
-            entity.ToTable("public");
+        modelBuilder.Entity<Group>(entity => {
+            entity.ToTable("group");
             entity.HasKey(it => it.Id);
             entity.Property(it => it.Id).HasColumnName("id").HasColumnType("BIGINT");
             entity.Property(it => it.Domain).HasColumnName("domain").HasMaxLength(100);
@@ -28,7 +28,7 @@ public sealed class VkDbContext(DbContextOptions<VkDbContext> options) : DbConte
             entity.HasKey(it => it.Id);
             entity.Property(it => it.Id).HasColumnName("id").HasColumnType("BIGINT");
             entity.Property(it => it.AlbumId).HasColumnName("album_id");
-            entity.Property(it => it.PublicId).HasColumnName("public_id");
+            entity.Property(it => it.GroupId).HasColumnName("group_id");
             entity.Property(it => it.CreatedAt).HasColumnName("created_at").HasColumnType("timestamptz");
             entity.Property(it => it.Views).HasColumnName("views");
             entity.Property(it => it.Likes).HasColumnName("likes");
@@ -42,11 +42,11 @@ public sealed class VkDbContext(DbContextOptions<VkDbContext> options) : DbConte
                 .HasConstraintName("FK_post_album");
 
             entity
-                .HasOne(it => it.Public)
+                .HasOne(it => it.Group)
                 .WithMany(it => it.Posts)
-                .HasForeignKey(it => it.PublicId)
+                .HasForeignKey(it => it.GroupId)
                 .OnDelete(DeleteBehavior.Cascade)
-                .HasConstraintName("FK_post_public");
+                .HasConstraintName("FK_post_group");
         });
 
         modelBuilder.Entity<Artist>(entity => {

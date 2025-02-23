@@ -5,6 +5,7 @@ using Jarogor.VkMusicToTelegram.Infrastructure.Vk.Api.Models.JsonConverters;
 using VkNet;
 using VkNet.Model;
 using VkNet.Utils;
+using Group = Jarogor.VkMusicToTelegram.Domain.Vk.Api.Group;
 using Post = Jarogor.VkMusicToTelegram.Domain.Vk.Api.Post;
 
 namespace Jarogor.VkMusicToTelegram.Infrastructure.Vk.Api;
@@ -14,10 +15,10 @@ public sealed class Adapter(string accessToken, VkApi vkApi) : IAdapter {
         await vkApi.AuthorizeAsync(new ApiAuthParams { AccessToken = accessToken }, cancellationToken);
     }
 
-    public async Task<Public> GetPublicAsync(string domain, CancellationToken cancellationToken = new()) {
+    public async Task<Group> GetGroupAsync(string domain, CancellationToken cancellationToken = new()) {
         var parameters = new VkParameters { { "group_id", domain } };
-        var group = await vkApi.CallAsync<Group>("groups.getById", parameters, true, cancellationToken);
-        return group.MapToPublic();
+        var group = await vkApi.CallAsync<VkNet.Model.Group>("groups.getById", parameters, true, cancellationToken);
+        return group.MapToGroup();
     }
 
     public async Task<ReadOnlyCollection<Post>> GetPostsAsync(string domain, int count, CancellationToken cancellationToken = new())

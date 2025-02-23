@@ -1,15 +1,14 @@
 ﻿using System.Collections.ObjectModel;
-using Jarogor.VkMusicToTelegram.Domain.Vk.Api;
-using VkNet.Model;
 using VkNet.Utils;
+using Group = Jarogor.VkMusicToTelegram.Domain.Vk.Api.Group;
 using Link = Jarogor.VkMusicToTelegram.Infrastructure.Vk.Api.Models.Link;
 using Post = Jarogor.VkMusicToTelegram.Domain.Vk.Api.Post;
 
 namespace Jarogor.VkMusicToTelegram.Infrastructure.Vk.Api;
 
 public static class MapExtensions {
-    public static Public MapToPublic(this Group it) {
-        return new Public {
+    public static Group MapToGroup(this VkNet.Model.Group it) {
+        return new Group {
             Id = it.Id,
             Name = it.Name,
         };

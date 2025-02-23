@@ -1,6 +1,6 @@
 ﻿namespace Jarogor.VkMusicToTelegram.Domain.Vk.Api;
 
-public sealed class Public {
+public sealed class Group {
     /// <summary>
     /// Идентификатор группы/паблика.
     /// </summary>
