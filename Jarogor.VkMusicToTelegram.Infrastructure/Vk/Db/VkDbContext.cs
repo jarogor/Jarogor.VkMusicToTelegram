@@ -18,7 +18,7 @@ public sealed class VkDbContext(DbContextOptions<VkDbContext> options) : DbConte
         modelBuilder.Entity<Public>(entity => {
             entity.ToTable("public");
             entity.HasKey(it => it.Id);
-            entity.Property(it => it.Id).HasColumnName("id").ValueGeneratedOnAdd();
+            entity.Property(it => it.Id).HasColumnName("id").HasColumnType("BIGINT");
             entity.Property(it => it.Domain).HasColumnName("domain").HasMaxLength(100);
             entity.Property(it => it.Title).HasColumnName("title").HasMaxLength(200);
         });
@@ -26,7 +26,7 @@ public sealed class VkDbContext(DbContextOptions<VkDbContext> options) : DbConte
         modelBuilder.Entity<Post>(entity => {
             entity.ToTable("post");
             entity.HasKey(it => it.Id);
-            entity.Property(it => it.Id).HasColumnName("id");
+            entity.Property(it => it.Id).HasColumnName("id").HasColumnType("BIGINT");
             entity.Property(it => it.AlbumId).HasColumnName("album_id");
             entity.Property(it => it.PublicId).HasColumnName("public_id");
             entity.Property(it => it.CreatedAt).HasColumnName("created_at").HasColumnType("timestamptz");

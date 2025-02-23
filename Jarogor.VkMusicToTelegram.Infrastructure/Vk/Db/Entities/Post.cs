@@ -2,8 +2,8 @@ namespace Jarogor.VkMusicToTelegram.Infrastructure.Vk.Db.Entities;
 
 public sealed class Post {
     public long Id { get; set; }
-    public required int AlbumId { get; set; }
-    public required int PublicId { get; set; }
+    public int AlbumId { get; set; }
+    public int PublicId { get; set; }
     public required DateTime CreatedAt { get; set; }
     public required int Views { get; set; }
     public required int Likes { get; set; }
